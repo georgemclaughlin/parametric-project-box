@@ -1,0 +1,6 @@
+# Windows zone identifier sidecar files
+*:Zone.Identifier
+
+# Common OS/editor noise
+.DS_Store
+Thumbs.db

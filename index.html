@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parametric Project Box</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Parametric Project Box</h1>
+      <p>Generate printable body/lid STL files for small electronics enclosures.</p>
+    </header>
+
+    <main class="layout">
+      <aside class="panel" aria-label="Parameters panel">
+        <form id="params-form">
+          <section>
+            <h2>Outer Dimensions (mm)</h2>
+            <label>Length <input type="number" name="length" step="0.1" min="40" max="300" value="95" /></label>
+            <label>Width <input type="number" name="width" step="0.1" min="30" max="300" value="65" /></label>
+            <label>Height <input type="number" name="height" step="0.1" min="20" max="150" value="32" /></label>
+            <label>Wall thickness <input type="number" name="wallThickness" step="0.1" min="1" max="8" value="2" /></label>
+            <label>Floor thickness <input type="number" name="floorThickness" step="0.1" min="1.2" max="8" value="2.4" /></label>
+            <label>Lid thickness <input type="number" name="lidThickness" step="0.1" min="1" max="8" value="2" /></label>
+            <label>Corner radius <input type="number" name="cornerRadius" step="0.1" min="0" max="30" value="3" /></label>
+            <div class="derived" id="inner-summary" aria-live="polite">
+              Internal cavity: <strong id="inner-dims">-</strong>
+            </div>
+          </section>
+
+          <section>
+            <h2>Lid fit (mm)</h2>
+            <label>Lip height <input type="number" name="lipHeight" step="0.1" min="1" max="20" value="3" /></label>
+            <label>Lip clearance <input type="number" name="lipClearance" step="0.05" min="0.1" max="1" value="0.25" /></label>
+          </section>
+
+          <details class="advanced-group">
+            <summary>Advanced: Fasteners</summary>
+            <section>
+              <label>Post diameter <input type="number" name="postDiameter" step="0.1" min="3" max="15" value="6" /></label>
+              <label>Screw hole diameter <input type="number" name="screwHoleDiameter" step="0.1" min="1.2" max="8" value="2.6" /></label>
+              <label>Post offset <input type="number" name="postOffset" step="0.1" min="4" max="30" value="8" /></label>
+              <label class="inline-check">
+                <input type="checkbox" name="countersink" />
+                Countersink lid holes
+              </label>
+            </section>
+          </details>
+
+          <details class="advanced-group">
+            <summary>Advanced: Vents</summary>
+            <section>
+              <label class="inline-check">
+                <input type="checkbox" name="enableVents" />
+                Enable vents
+              </label>
+              <label>Vent face
+                <select name="ventFace">
+                  <option value="front">Front</option>
+                  <option value="back">Back</option>
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </label>
+              <label>Vent count <input type="number" name="ventCount" step="1" min="1" max="20" value="6" /></label>
+              <label>Vent width <input type="number" name="ventWidth" step="0.1" min="1" max="8" value="1.6" /></label>
+              <label>Vent spacing <input type="number" name="ventSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+            </section>
+          </details>
+        </form>
+
+        <section>
+          <h2>Presets</h2>
+          <div class="preset-row">
+            <input id="preset-name" type="text" placeholder="Preset name" maxlength="40" />
+            <button id="save-preset" type="button">Save</button>
+          </div>
+          <div class="preset-row">
+            <select id="preset-select" aria-label="Preset selector"></select>
+            <button id="load-preset" type="button">Load</button>
+            <button id="delete-preset" type="button">Delete</button>
+          </div>
+        </section>
+
+        <section>
+          <h2>Export</h2>
+          <div class="primary-row">
+            <button id="export-all" type="button">Download STL (Body + Lid)</button>
+          </div>
+          <div class="button-row">
+            <button id="export-body" type="button">Body Only</button>
+            <button id="export-lid" type="button">Lid Only</button>
+          </div>
+        </section>
+
+        <section>
+          <h2>Status</h2>
+          <div id="status" aria-live="polite">Ready.</div>
+          <ul id="errors"></ul>
+        </section>
+      </aside>
+
+      <section class="viewer-wrap" aria-label="3D preview">
+        <div id="viewer"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+# AGENTS.md
+
+Guidance for agents working in this repository.
+
+## Project intent
+Generate printable parametric project boxes in the browser and export STL files. Keep the app static and GitHub Pages compatible.
+
+## Constraints
+- No build tooling by default (plain HTML/CSS/JS modules).
+- Keep runtime browser-only; do not add server dependencies.
+- Prefer small, explicit modules over framework adoption.
+- Preserve millimeter units and current default assumptions for FDM printing.
+
+## Local development
+Run with a static server from repo root:
+
+```bash
+python3 -m http.server 4173
+```
+
+Open `http://127.0.0.1:4173/`.
+
+## Validation checklist before finishing
+1. JS syntax checks pass:
+   - `node --check src/main.js`
+   - `node --check src/model/features.js`
+   - `node --check src/model/box.js`
+   - `node --check src/viewer.js`
+2. Browser smoke test:
+   - Page loads from local server
+   - Status reaches `Model updated...`
+   - No console errors
+3. Confirm export buttons still work:
+   - Combined export triggers both files
+   - Individual export buttons still work
+
+## Architecture map
+- `src/main.js`: form events, debounced regeneration, status/errors, presets, exports
+- `src/model/features.js`: primitive geometry composition (shell, posts, vents, lid details)
+- `src/model/box.js`: body/lid assembly plus preview-only transforms
+- `src/viewer.js`: Three.js rendering pipeline and camera behavior
+- `src/validators.js`: hard errors and soft warnings
+- `src/presets.js`: local preset persistence
+- `src/export.js`: STL serializer + download trigger
+- `src/state.js`: defaults and form hydration/extraction
+
+## UX principles to keep
+- Default view should be understandable without expanding advanced controls.
+- Avoid camera reset on normal parameter changes.
+- Keep clear distinction between outer dimensions and internal cavity output.
+- Prioritize successful printable output over adding many niche controls.
+
+## Non-goals (unless explicitly requested)
+- Adding backend services
+- Heavy framework migration
+- CAD import workflows
