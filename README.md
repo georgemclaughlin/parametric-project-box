@@ -6,7 +6,8 @@ Static browser app for generating simple electronics enclosure STLs (body + lid)
 - Parametric **outer** dimensions (`length`, `width`, `height`)
 - Live calculated **internal cavity** readout
 - Flat mating surfaces with rounded corner footprint (better lid seating)
-- Lid lip fit controls (`lipHeight`, `lipClearance`)
+- Lid fit controls (`lipHeight`, `fitTolerance`)
+- Corner posts/holes are auto-positioned to maximum safe corner placement
 - Optional advanced controls (collapsed by default):
   - Fasteners (posts, holes, countersink)
   - Vents
@@ -39,6 +40,7 @@ Open: `http://127.0.0.1:4173/`
 ## Notes and caveats
 - Units are millimeters.
 - Geometry validation blocks invalid combinations and preserves the previous valid preview.
+- Older saved presets using deprecated fields are discarded and reset to defaults.
 - If browser blocks the primary export action, allow multiple downloads for the site.
 - Rendering requires WebGL.
 
@@ -48,6 +50,7 @@ Open: `http://127.0.0.1:4173/`
 - `src/main.js`: app wiring, regen loop, status, presets, export handlers
 - `src/model/box.js`: body/lid assembly + preview placement transforms
 - `src/model/features.js`: geometric primitives/features (shell, lip, holes, vents, posts)
+- `src/model/fit.js`: shared fit math (tolerance-derived clearance + auto-corner post placement)
 - `src/viewer.js`: Three.js scene, controls, mesh updates
 - `src/validators.js`: parameter constraints and warnings
 - `src/export.js`: STL serialization/download

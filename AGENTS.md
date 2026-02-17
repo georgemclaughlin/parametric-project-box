@@ -10,6 +10,7 @@ Generate printable parametric project boxes in the browser and export STL files.
 - Keep runtime browser-only; do not add server dependencies.
 - Prefer small, explicit modules over framework adoption.
 - Preserve millimeter units and current default assumptions for FDM printing.
+- Keep posts auto-corner (no manual post offset UI).
 
 ## Local development
 Run with a static server from repo root:
@@ -37,6 +38,7 @@ Open `http://127.0.0.1:4173/`.
 ## Architecture map
 - `src/main.js`: form events, debounced regeneration, status/errors, presets, exports
 - `src/model/features.js`: primitive geometry composition (shell, posts, vents, lid details)
+- `src/model/fit.js`: fit tolerance derivation and auto-corner post placement math
 - `src/model/box.js`: body/lid assembly plus preview-only transforms
 - `src/viewer.js`: Three.js rendering pipeline and camera behavior
 - `src/validators.js`: hard errors and soft warnings
@@ -48,6 +50,7 @@ Open `http://127.0.0.1:4173/`.
 - Default view should be understandable without expanding advanced controls.
 - Avoid camera reset on normal parameter changes.
 - Keep clear distinction between outer dimensions and internal cavity output.
+- Prefer a single user-facing fit control (`fitTolerance`) over multiple coupled controls.
 - Prioritize successful printable output over adding many niche controls.
 
 ## Non-goals (unless explicitly requested)

@@ -1,3 +1,5 @@
+import { deriveFit } from "./model/fit.js";
+
 export function validateParams(params) {
   const errors = [];
   const warnings = [];
@@ -8,13 +10,11 @@ export function validateParams(params) {
     height,
     wallThickness,
     floorThickness,
-    lidThickness,
     cornerRadius,
     lipHeight,
-    lipClearance,
+    fitTolerance,
     postDiameter,
     screwHoleDiameter,
-    postOffset,
     enableVents,
     ventCount,
     ventWidth,
@@ -38,23 +38,36 @@ export function validateParams(params) {
     errors.push("Lip height is too tall for the current interior height.");
   }
 
-  if (lipClearance >= wallThickness - 0.2) {
-    errors.push("Lip clearance is too large compared with wall thickness.");
-  }
-
   if (screwHoleDiameter >= postDiameter) {
     errors.push("Screw hole diameter must be smaller than post diameter.");
   }
 
-  const maxPostOffset = Math.min(length, width) / 2 - wallThickness - postDiameter / 2;
-  if (postOffset > maxPostOffset) {
-    errors.push(`Post offset is too large. Keep it at or below ${Math.max(0, maxPostOffset).toFixed(2)} mm.`);
+  if (!Number.isFinite(fitTolerance) || fitTolerance <= 0) {
+    errors.push("Fit tolerance must be a positive number.");
+  } else {
+    if (fitTolerance < 0.1 || fitTolerance > 0.6) {
+      errors.push("Fit tolerance must be between 0.10 mm and 0.60 mm.");
+    } else if (fitTolerance < 0.15 || fitTolerance > 0.4) {
+      warnings.push("Fit tolerance outside 0.15-0.40 mm may need print tuning.");
+    }
   }
 
-  const postReachX = length / 2 - postOffset;
-  const postReachY = width / 2 - postOffset;
-  if (postReachX - postDiameter / 2 <= wallThickness || postReachY - postDiameter / 2 <= wallThickness) {
-    errors.push("Posts are colliding with walls. Reduce post diameter or post offset.");
+  const fit = deriveFit(params);
+  if (!fit.feasible) {
+    errors.push("Corner post placement is not feasible. Increase footprint or reduce post diameter/corner radius.");
+  }
+  if (fit.lipClearance >= wallThickness - 0.2) {
+    errors.push("Fit tolerance is too large compared with wall thickness.");
+  }
+  const lipLength = length - 2 * wallThickness - 2 * fit.lipClearance;
+  const lipWidth = width - 2 * wallThickness - 2 * fit.lipClearance;
+  if (lipLength <= 2 || lipWidth <= 2) {
+    errors.push("Lid lip ring has collapsed. Increase footprint or reduce fit tolerance/wall thickness.");
+  }
+
+  const postHeight = height - floorThickness;
+  if (postHeight < 4) {
+    errors.push("Body is too short for robust corner posts. Increase height or reduce floor thickness.");
   }
 
   if (wallThickness < 1.6) {

@@ -130,7 +130,9 @@ loadPresetBtn.addEventListener("click", () => {
   const name = presetSelectEl.value;
   const preset = loadPreset(name);
   if (!preset) {
-    setStatus("Preset not found.");
+    loadParams(DEFAULT_PRESET.params);
+    refreshPresetSelect();
+    setStatus("Preset is incompatible with current model. Reset to defaults.");
     return;
   }
   loadParams(preset);

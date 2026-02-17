@@ -4,6 +4,7 @@ import {
   primitives,
   transforms
 } from "https://esm.sh/@jscad/modeling@2.12.6";
+import { deriveFit } from "./fit.js";
 
 const { subtract, union } = booleans;
 const { roundedRectangle, cylinder, cuboid } = primitives;
@@ -42,44 +43,64 @@ export function makePosts(params) {
   const {
     length,
     width,
+    wallThickness,
     height,
     floorThickness,
     postDiameter,
-    screwHoleDiameter,
-    postOffset
+    screwHoleDiameter
   } = params;
+  const { postCenters } = deriveFit(params);
 
-  const postHeight = Math.max(4, height - floorThickness - 2);
+  // Run posts flush to the body top rim.
+  const postHeight = Math.max(4, height - floorThickness);
   const bottomZ = -height / 2 + floorThickness;
   const postCenterZ = bottomZ + postHeight / 2;
   const holeHeight = Math.max(2, postHeight - 1);
   const holeCenterZ = bottomZ + 1 + holeHeight / 2;
 
-  const xs = [-(length / 2 - postOffset), length / 2 - postOffset];
-  const ys = [-(width / 2 - postOffset), width / 2 - postOffset];
-
   const posts = [];
+  const braces = [];
   const holes = [];
+  const braceThickness = Math.max(1.2, postDiameter * 0.45);
 
-  for (const x of xs) {
-    for (const y of ys) {
-      posts.push(
-        translate(
-          [x, y, postCenterZ],
-          cylinder({ radius: postDiameter / 2, height: postHeight, segments: 36 })
-        )
-      );
+  for (const center of postCenters) {
+    posts.push(
+      translate(
+        [center.x, center.y, postCenterZ],
+        cylinder({ radius: postDiameter / 2, height: postHeight, segments: 36 })
+      )
+    );
 
-      holes.push(
-        translate(
-          [x, y, holeCenterZ],
-          cylinder({ radius: screwHoleDiameter / 2, height: holeHeight + 0.2, segments: 32 })
-        )
-      );
-    }
+    const xSign = Math.sign(center.x) || 1;
+    const ySign = Math.sign(center.y) || 1;
+    const xWallCenter = xSign * (length / 2 - wallThickness / 2);
+    const yWallCenter = ySign * (width / 2 - wallThickness / 2);
+    const xBridgeLen = Math.max(0.4, Math.abs(xWallCenter - center.x));
+    const yBridgeLen = Math.max(0.4, Math.abs(yWallCenter - center.y));
+
+    // Tie posts into nearby side walls for strength and easier printing.
+    braces.push(
+      translate(
+        [center.x + xSign * xBridgeLen / 2, center.y, postCenterZ],
+        cuboid({ size: [xBridgeLen, braceThickness, postHeight] })
+      )
+    );
+    braces.push(
+      translate(
+        [center.x, center.y + ySign * yBridgeLen / 2, postCenterZ],
+        cuboid({ size: [braceThickness, yBridgeLen, postHeight] })
+      )
+    );
+
+    holes.push(
+      translate(
+        [center.x, center.y, holeCenterZ],
+        cylinder({ radius: screwHoleDiameter / 2, height: holeHeight + 0.2, segments: 32 })
+      )
+    );
   }
 
-  return subtract(union(...posts), union(...holes));
+  return subtract(union(...posts, ...braces), union(...holes));
 }
 
 export function cutVents(bodyGeom, params) {
@@ -140,66 +161,101 @@ export function makeLidLip(params) {
     length,
     width,
     wallThickness,
-    lipClearance,
     lipHeight,
     cornerRadius,
-    lidThickness
+    lidThickness,
+    postDiameter
   } = params;
+  const { lipClearance, fitTolerance } = deriveFit(params);
 
   const lipLength = length - 2 * wallThickness - 2 * lipClearance;
   const lipWidth = width - 2 * wallThickness - 2 * lipClearance;
-  const lip = roundedPrism(
+  const lipOuter = roundedPrism(
     lipLength,
     lipWidth,
     lipHeight,
     cornerRadius - wallThickness - lipClearance
   );
 
+  // Build a perimeter ring lip (not a solid plug) so the lid can seat flush.
+  const lipWall = Math.max(1, Math.min(wallThickness, Math.min(lipLength, lipWidth) / 4));
+  const innerLipLength = lipLength - 2 * lipWall;
+  const innerLipWidth = lipWidth - 2 * lipWall;
+
+  let lip = lipOuter;
+  if (innerLipLength > 1 && innerLipWidth > 1) {
+    const lipInner = roundedPrism(
+      innerLipLength,
+      innerLipWidth,
+      lipHeight + 0.2,
+      cornerRadius - wallThickness - lipClearance - lipWall
+    );
+    lip = subtract(lipOuter, lipInner);
+  }
+
+  // Corner notches keep the lip from bearing on corner posts; lid seats on rim/holes instead.
+  const notchSize = Math.max(
+    postDiameter + 2 * fitTolerance + 0.4,
+    (postDiameter / 2 + fitTolerance + 0.25) * 1.6
+  );
+  const notchW = Math.min(lipLength - 0.8, notchSize);
+  const notchH = Math.min(lipWidth - 0.8, notchSize);
+
+  if (notchW > 0.6 && notchH > 0.6) {
+    const cornerCuts = [];
+    const sx = [-1, 1];
+    const sy = [-1, 1];
+    for (const ix of sx) {
+      for (const iy of sy) {
+        cornerCuts.push(
+          translate(
+            [ix * (lipLength / 2 - notchW / 2), iy * (lipWidth / 2 - notchH / 2), 0],
+            cuboid({ size: [notchW, notchH, lipHeight + 0.4] })
+          )
+        );
+      }
+    }
+    lip = subtract(lip, union(...cornerCuts));
+  }
+
   return translate([0, 0, -(lidThickness / 2 + lipHeight / 2)], lip);
 }
 
 export function makeLidHoles(lidGeom, params) {
   const {
-    length,
-    width,
-    postOffset,
     screwHoleDiameter,
     lidThickness,
     lipHeight,
     countersink
   } = params;
-
-  const xs = [-(length / 2 - postOffset), length / 2 - postOffset];
-  const ys = [-(width / 2 - postOffset), width / 2 - postOffset];
+  const { postCenters } = deriveFit(params);
 
   const throughHoles = [];
   const sinks = [];
   const sinkDepth = 1.6;
   const sinkHeadDiameter = screwHoleDiameter * 1.9;
 
-  for (const x of xs) {
-    for (const y of ys) {
-      throughHoles.push(
+  for (const center of postCenters) {
+    throughHoles.push(
+      translate(
+        [center.x, center.y, -lipHeight / 2],
+        cylinder({ radius: screwHoleDiameter / 2, height: lidThickness + lipHeight + 2, segments: 32 })
+      )
+    );
+
+    if (countersink) {
+      sinks.push(
         translate(
-          [x, y, -lipHeight / 2],
-          cylinder({ radius: screwHoleDiameter / 2, height: lidThickness + lipHeight + 2, segments: 32 })
+          [center.x, center.y, lidThickness / 2 - sinkDepth / 2],
+          cylinder({
+            // Cut a top-side cone so flat-head screws can sit lower.
+            height: sinkDepth,
+            startRadius: screwHoleDiameter / 2,
+            endRadius: sinkHeadDiameter / 2,
+            segments: 32
+          })
         )
       );
-
-      if (countersink) {
-        sinks.push(
-          translate(
-            [x, y, lidThickness / 2 - sinkDepth / 2],
-            cylinder({
-              // Cut a top-side cone so flat-head screws can sit lower.
-              height: sinkDepth,
-              startRadius: screwHoleDiameter / 2,
-              endRadius: sinkHeadDiameter / 2,
-              segments: 32
-            })
-          )
-        );
-      }
     }
   }
 
