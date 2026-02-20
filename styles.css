@@ -69,22 +69,105 @@ h2 {
 
 .advanced-group {
   margin-bottom: 1rem;
-  border: 1px dashed var(--edge);
+  border: 1px solid #d6e3eb;
   border-radius: 10px;
-  background: #f5fafc;
+  background: #f6fbfd;
+  overflow: hidden;
 }
 
 .advanced-group summary {
   cursor: pointer;
-  padding: 0.55rem 0.65rem;
+  padding: 0.62rem 0.72rem;
   color: var(--muted);
   font-weight: 600;
+  list-style: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.advanced-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-group summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.45rem;
+  color: #6f8796;
+  transform: translateY(-0.02rem);
+  transition: transform 120ms ease;
+}
+
+.advanced-group[open] summary::before {
+  transform: rotate(90deg) translateX(0.03rem);
+}
+
+.advanced-group[open] summary {
+  color: #355569;
+  background: #eef5f9;
+  border-bottom: 1px solid #d9e6ee;
+}
+
+.advanced-group summary:hover {
+  background: #edf5fa;
 }
 
 .advanced-group section {
   margin: 0;
   border-bottom: 0;
-  padding: 0.2rem 0.65rem 0.6rem;
+  padding: 0.45rem 0.72rem 0.72rem;
+}
+
+.advanced-group .adv-block {
+  padding: 0.5rem 0 0.1rem;
+  border-top: 1px solid #e6eff5;
+}
+
+.advanced-group .adv-block:first-child {
+  border-top: 0;
+  padding-top: 0.15rem;
+}
+
+.adv-subtitle {
+  margin: 0 0 0.45rem;
+  color: #567183;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.advanced-group label {
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.advanced-group .inline-check {
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.advanced-group .inline-check input[type="checkbox"] {
+  margin: 0;
+}
+
+.advanced-group input[type="checkbox"]:disabled {
+  opacity: 0.65;
+}
+
+.advanced-group .inline-check:has(input[type="checkbox"]:disabled) {
+  color: #8ea3b1;
+}
+
+.advanced-group .derived {
+  margin-top: 0.32rem;
+  margin-bottom: 0.12rem;
+  background: #edf5fa;
+  border-color: #d1e0ea;
+}
+
+.advanced-group input[type="number"] {
+  width: 120px;
 }
 
 label {

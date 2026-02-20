@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Parametric Project Box</title>
-    <link rel="icon" href="./favicon.svg?v=3" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=3" />
+    <link rel="icon" href="./favicon.svg?v=4" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=4" />
   </head>
   <body>
     <header class="topbar">
@@ -39,51 +39,75 @@
           <details class="advanced-group">
             <summary>Advanced: Fasteners</summary>
             <section>
-              <label>Post diameter <input type="number" name="postDiameter" step="0.1" min="3" max="15" value="8" /></label>
-              <label>Screw hole diameter <input type="number" name="screwHoleDiameter" step="0.1" min="1.2" max="8" value="2.6" /></label>
-              <div class="derived">Post placement: <strong>Auto-corner</strong></div>
-              <label class="inline-check">
-                <input type="checkbox" name="countersink" />
-                Countersink lid holes
-              </label>
-              <label class="inline-check">
-                <input type="checkbox" name="enableCenteredStandoffs" />
-                Enable centered board standoffs
-              </label>
-              <label>Standoff height <input type="number" name="standoffHeight" step="0.1" min="2" max="60" value="6" /></label>
-              <label>Standoff diameter <input type="number" name="standoffDiameter" step="0.1" min="2" max="20" value="5" /></label>
-              <label>Standoff hole diameter <input type="number" name="standoffHoleDiameter" step="0.1" min="0" max="8" value="2.2" /></label>
-              <label>Standoff spacing X <input type="number" name="standoffSpacingX" step="0.1" min="2" max="300" value="58" /></label>
-              <label>Standoff spacing Y <input type="number" name="standoffSpacingY" step="0.1" min="2" max="300" value="23" /></label>
+              <div class="adv-block">
+                <h3 class="adv-subtitle">Fastener posts</h3>
+                <label>Post diameter <input type="number" name="postDiameter" step="0.1" min="3" max="15" value="8" /></label>
+                <label>Screw hole diameter <input type="number" name="screwHoleDiameter" step="0.1" min="1.2" max="8" value="2.6" /></label>
+                <div class="derived">Post placement: <strong>Auto-corner</strong></div>
+              </div>
+              <div class="adv-block">
+                <h3 class="adv-subtitle">Options</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="countersink" />
+                  Countersink lid holes
+                </label>
+              </div>
+            </section>
+          </details>
+
+          <details class="advanced-group">
+            <summary>Advanced: Standoffs</summary>
+            <section>
+              <div class="adv-block">
+                <h3 class="adv-subtitle">Centered standoffs</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="enableCenteredStandoffs" />
+                  Enable centered board standoffs
+                </label>
+                <label>Standoff height <input type="number" name="standoffHeight" step="0.1" min="2" max="60" value="6" /></label>
+                <label>Standoff diameter <input type="number" name="standoffDiameter" step="0.1" min="2" max="20" value="5" /></label>
+                <label>Standoff hole diameter <input type="number" name="standoffHoleDiameter" step="0.1" min="0" max="8" value="2.2" /></label>
+                <label>Standoff spacing X <input type="number" name="standoffSpacingX" step="0.1" min="2" max="300" value="58" /></label>
+                <label>Standoff spacing Y <input type="number" name="standoffSpacingY" step="0.1" min="2" max="300" value="23" /></label>
+              </div>
             </section>
           </details>
 
           <details class="advanced-group">
             <summary>Advanced: Vents</summary>
             <section>
-              <label class="inline-check">
-                <input type="checkbox" name="enableVents" />
-                Enable vents
-              </label>
-              <label class="inline-check">
-                <input type="checkbox" name="ventFront" checked />
-                Vent front
-              </label>
-              <label class="inline-check">
-                <input type="checkbox" name="ventBack" />
-                Vent back
-              </label>
-              <label class="inline-check">
-                <input type="checkbox" name="ventLeft" />
-                Vent left
-              </label>
-              <label class="inline-check">
-                <input type="checkbox" name="ventRight" />
-                Vent right
-              </label>
-              <label>Vent count <input type="number" name="ventCount" step="1" min="1" max="20" value="6" /></label>
-              <label>Vent width <input type="number" name="ventWidth" step="0.1" min="1" max="8" value="1.6" /></label>
-              <label>Vent spacing <input type="number" name="ventSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+              <div class="adv-block">
+                <h3 class="adv-subtitle">Vent controls</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="enableVents" />
+                  Enable vents
+                </label>
+              </div>
+              <div class="adv-block">
+                <h3 class="adv-subtitle">Vent faces</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventFront" checked />
+                  Vent front
+                </label>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventBack" />
+                  Vent back
+                </label>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventLeft" />
+                  Vent left
+                </label>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventRight" />
+                  Vent right
+                </label>
+              </div>
+              <div class="adv-block">
+                <h3 class="adv-subtitle">Vent geometry</h3>
+                <label>Vent count <input type="number" name="ventCount" step="1" min="1" max="20" value="6" /></label>
+                <label>Vent width <input type="number" name="ventWidth" step="0.1" min="1" max="8" value="1.6" /></label>
+                <label>Vent spacing <input type="number" name="ventSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+              </div>
             </section>
           </details>
         </form>
@@ -124,6 +148,6 @@
       </section>
     </main>
 
-    <script type="module" src="./src/main.js?v=3"></script>
+    <script type="module" src="./src/main.js?v=5"></script>
   </body>
 </html>

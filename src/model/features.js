@@ -4,10 +4,10 @@ import {
   primitives,
   transforms
 } from "https://esm.sh/@jscad/modeling@2.12.6";
-import { deriveCenteredStandoffCenters, deriveFit } from "./fit.js";
+import { deriveCenteredStandoffCenters, deriveFit } from "./fit.js?v=5";
 
 const { subtract, union } = booleans;
-const { roundedRectangle, cylinder, cuboid } = primitives;
+const { roundedRectangle, cylinder, cylinderElliptic, cuboid } = primitives;
 const { extrudeLinear } = extrusions;
 const { translate } = transforms;
 
@@ -301,11 +301,11 @@ export function makeLidHoles(lidGeom, params) {
       sinks.push(
         translate(
           [center.x, center.y, lidThickness / 2 - sinkDepth / 2],
-          cylinder({
-            // Cut a top-side cone so flat-head screws can sit lower.
+          cylinderElliptic({
+            // Top-side taper for flat-head screws.
             height: sinkDepth,
-            startRadius: screwHoleDiameter / 2,
-            endRadius: sinkHeadDiameter / 2,
+            startRadius: [screwHoleDiameter / 2, screwHoleDiameter / 2],
+            endRadius: [sinkHeadDiameter / 2, sinkHeadDiameter / 2],
             segments: 32
           })
         )

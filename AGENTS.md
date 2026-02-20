@@ -13,6 +13,7 @@ Generate printable parametric project boxes in the browser and export STL files.
 - Keep posts auto-corner (no manual post offset UI).
 - Centered board standoffs are additive to corner posts (do not replace lid fastener corners).
 - Keep fasteners and centered standoffs as separate advanced UI sections.
+- Keep countersink lid-hole behavior visibly effective at defaults (preview and STL).
 - Keep vent face controls disabled unless vents are enabled.
 
 ## Local development
@@ -39,6 +40,8 @@ Open `http://127.0.0.1:4173/`.
    - Individual export buttons still work
 4. Standoff edge case:
    - With centered standoffs enabled, `standoffHoleDiameter = 0` stays valid and model still updates
+5. Countersink check:
+   - With default params, toggling `countersink` changes lid geometry (preview tris and exported STL hash/size)
 
 ## Architecture map
 - `src/main.js`: form events, debounced regeneration, status/errors, presets, exports
