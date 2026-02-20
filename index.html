@@ -65,13 +65,21 @@
                 <input type="checkbox" name="enableVents" />
                 Enable vents
               </label>
-              <label>Vent face
-                <select name="ventFace">
-                  <option value="front">Front</option>
-                  <option value="back">Back</option>
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                </select>
+              <label class="inline-check">
+                <input type="checkbox" name="ventFront" checked />
+                Vent front
+              </label>
+              <label class="inline-check">
+                <input type="checkbox" name="ventBack" />
+                Vent back
+              </label>
+              <label class="inline-check">
+                <input type="checkbox" name="ventLeft" />
+                Vent left
+              </label>
+              <label class="inline-check">
+                <input type="checkbox" name="ventRight" />
+                Vent right
               </label>
               <label>Vent count <input type="number" name="ventCount" step="1" min="1" max="20" value="6" /></label>
               <label>Vent width <input type="number" name="ventWidth" step="0.1" min="1" max="8" value="1.6" /></label>

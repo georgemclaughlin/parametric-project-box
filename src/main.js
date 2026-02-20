@@ -21,11 +21,26 @@ const exportBodyBtn = document.querySelector("#export-body");
 const exportLidBtn = document.querySelector("#export-lid");
 
 const viewerContainer = document.querySelector("#viewer");
+const enableVentsEl = form.elements.namedItem("enableVents");
+const ventFaceEls = [
+  form.elements.namedItem("ventFront"),
+  form.elements.namedItem("ventBack"),
+  form.elements.namedItem("ventLeft"),
+  form.elements.namedItem("ventRight")
+];
 
 let currentParams = { ...DEFAULT_PARAMS, ...DEFAULT_PRESET.params };
 let currentModel = null;
 let debounceTimer = null;
 let viewer = null;
+
+function syncVentControls() {
+  const enabled = Boolean(enableVentsEl && "checked" in enableVentsEl && enableVentsEl.checked);
+  for (const el of ventFaceEls) {
+    if (!el || !("disabled" in el)) continue;
+    el.disabled = !enabled;
+  }
+}
 
 function renderErrors(messages) {
   errorsEl.innerHTML = "";
@@ -91,6 +106,7 @@ function regenerate() {
 
 function queueRegenerate() {
   if (!viewer) return;
+  syncVentControls();
   setStatus("Regenerating...");
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(regenerate, 250);
@@ -98,6 +114,7 @@ function queueRegenerate() {
 
 function loadParams(params) {
   writeParamsToForm(form, params);
+  syncVentControls();
   updateInnerSummary(params);
   queueRegenerate();
 }
@@ -181,6 +198,7 @@ exportAllBtn.addEventListener("click", async () => {
 });
 
 refreshPresetSelect();
+syncVentControls();
 
 function hasWebGLSupport() {
   try {

@@ -18,7 +18,10 @@ export const DEFAULT_PARAMS = {
   standoffSpacingX: 58,
   standoffSpacingY: 23,
   enableVents: false,
-  ventFace: "front",
+  ventFront: true,
+  ventBack: false,
+  ventLeft: false,
+  ventRight: false,
   ventCount: 6,
   ventWidth: 1.6,
   ventSpacing: 1.2
@@ -58,7 +61,17 @@ export function readParamsFromForm(form) {
   next.countersink = data.get("countersink") === "on";
   next.enableCenteredStandoffs = data.get("enableCenteredStandoffs") === "on";
   next.enableVents = data.get("enableVents") === "on";
-  next.ventFace = String(data.get("ventFace") || "front");
+  next.ventFront = data.get("ventFront") === "on";
+  next.ventBack = data.get("ventBack") === "on";
+  next.ventLeft = data.get("ventLeft") === "on";
+  next.ventRight = data.get("ventRight") === "on";
+  if (next.enableVents && !next.ventFront && !next.ventBack && !next.ventLeft && !next.ventRight) {
+    next.ventFront = true;
+    const ventFrontEl = form.elements.namedItem("ventFront");
+    if (ventFrontEl && "checked" in ventFrontEl) {
+      ventFrontEl.checked = true;
+    }
+  }
   next.ventCount = Math.round(next.ventCount);
 
   return next;

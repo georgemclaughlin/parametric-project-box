@@ -20,6 +20,10 @@ export function validateParams(params) {
     standoffDiameter,
     standoffHoleDiameter,
     enableVents,
+    ventFront,
+    ventBack,
+    ventLeft,
+    ventRight,
     ventCount,
     ventWidth,
     ventSpacing
@@ -128,6 +132,9 @@ export function validateParams(params) {
   }
 
   if (enableVents) {
+    if (!ventFront && !ventBack && !ventLeft && !ventRight) {
+      warnings.push("No vent face selected. Front vents will be used.");
+    }
     const ventStackHeight = ventCount * ventWidth + (ventCount - 1) * ventSpacing;
     if (ventStackHeight > height - floorThickness - 8) {
       errors.push("Vent stack is too tall for this side wall.");

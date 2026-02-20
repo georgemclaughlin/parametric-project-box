@@ -12,6 +12,7 @@ Generate printable parametric project boxes in the browser and export STL files.
 - Preserve millimeter units and current default assumptions for FDM printing.
 - Keep posts auto-corner (no manual post offset UI).
 - Centered board standoffs are additive to corner posts (do not replace lid fastener corners).
+- Keep vent face controls disabled unless vents are enabled.
 
 ## Local development
 Run with a static server from repo root:

@@ -21,7 +21,10 @@ const REQUIRED_FIELDS = [
   "standoffSpacingX",
   "standoffSpacingY",
   "enableVents",
-  "ventFace",
+  "ventFront",
+  "ventBack",
+  "ventLeft",
+  "ventRight",
   "ventCount",
   "ventWidth",
   "ventSpacing"
@@ -49,7 +52,10 @@ export const DEFAULT_PRESET = {
     standoffSpacingX: 58,
     standoffSpacingY: 23,
     enableVents: false,
-    ventFace: "front",
+    ventFront: true,
+    ventBack: false,
+    ventLeft: false,
+    ventRight: false,
     ventCount: 6,
     ventWidth: 1.6,
     ventSpacing: 1.2

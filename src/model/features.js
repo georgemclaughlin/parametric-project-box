@@ -153,7 +153,10 @@ export function cutVents(bodyGeom, params) {
     height,
     wallThickness,
     floorThickness,
-    ventFace,
+    ventFront,
+    ventBack,
+    ventLeft,
+    ventRight,
     ventCount,
     ventWidth,
     ventSpacing
@@ -163,34 +166,42 @@ export function cutVents(bodyGeom, params) {
   const totalVentHeight = ventCount * ventWidth + (ventCount - 1) * ventSpacing;
   const startZ = -height / 2 + floorThickness + 4 + (usableHeight - totalVentHeight) / 2;
 
-  const slotLength = (ventFace === "front" || ventFace === "back")
-    ? Math.max(10, length - 20)
-    : Math.max(10, width - 20);
-
   const cuts = [];
+  const faces = [];
+  if (ventFront) faces.push("front");
+  if (ventBack) faces.push("back");
+  if (ventLeft) faces.push("left");
+  if (ventRight) faces.push("right");
 
-  for (let i = 0; i < ventCount; i += 1) {
-    const z = startZ + i * (ventWidth + ventSpacing) + ventWidth / 2;
+  for (const face of faces) {
+    const slotLength = (face === "front" || face === "back")
+      ? Math.max(10, length - 20)
+      : Math.max(10, width - 20);
 
-    if (ventFace === "front" || ventFace === "back") {
-      const y = ventFace === "front" ? width / 2 - wallThickness / 2 : -width / 2 + wallThickness / 2;
-      cuts.push(
-        translate(
-          [0, y, z],
-          cuboid({ size: [slotLength, wallThickness + 2, ventWidth] })
-        )
-      );
-    } else {
-      const x = ventFace === "right" ? length / 2 - wallThickness / 2 : -length / 2 + wallThickness / 2;
-      cuts.push(
-        translate(
-          [x, 0, z],
-          cuboid({ size: [wallThickness + 2, slotLength, ventWidth] })
-        )
-      );
+    for (let i = 0; i < ventCount; i += 1) {
+      const z = startZ + i * (ventWidth + ventSpacing) + ventWidth / 2;
+
+      if (face === "front" || face === "back") {
+        const y = face === "front" ? width / 2 - wallThickness / 2 : -width / 2 + wallThickness / 2;
+        cuts.push(
+          translate(
+            [0, y, z],
+            cuboid({ size: [slotLength, wallThickness + 2, ventWidth] })
+          )
+        );
+      } else {
+        const x = face === "right" ? length / 2 - wallThickness / 2 : -length / 2 + wallThickness / 2;
+        cuts.push(
+          translate(
+            [x, 0, z],
+            cuboid({ size: [wallThickness + 2, slotLength, ventWidth] })
+          )
+        );
+      }
     }
   }
 
+  if (cuts.length === 0) return bodyGeom;
   return subtract(bodyGeom, union(...cuts));
 }
 
