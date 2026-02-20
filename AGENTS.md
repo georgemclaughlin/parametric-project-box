@@ -12,6 +12,7 @@ Generate printable parametric project boxes in the browser and export STL files.
 - Preserve millimeter units and current default assumptions for FDM printing.
 - Keep posts auto-corner (no manual post offset UI).
 - Centered board standoffs are additive to corner posts (do not replace lid fastener corners).
+- Keep fasteners and centered standoffs as separate advanced UI sections.
 - Keep vent face controls disabled unless vents are enabled.
 
 ## Local development
@@ -55,6 +56,7 @@ Open `http://127.0.0.1:4173/`.
 - Avoid camera reset on normal parameter changes.
 - Keep clear distinction between outer dimensions and internal cavity output.
 - Prefer a single user-facing fit control (`fitTolerance`) over multiple coupled controls.
+- Keep fastener and standoff controls visually separated to avoid blending distinct concepts.
 - Prioritize successful printable output over adding many niche controls.
 
 ## Non-goals (unless explicitly requested)
