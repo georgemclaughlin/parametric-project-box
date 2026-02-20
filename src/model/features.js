@@ -4,7 +4,7 @@ import {
   primitives,
   transforms
 } from "https://esm.sh/@jscad/modeling@2.12.6";
-import { deriveCenteredStandoffCenters, deriveFit } from "./fit.js?v=5";
+import { deriveCenteredStandoffCenters, deriveFit } from "./fit.js?v=6";
 
 const { subtract, union } = booleans;
 const { roundedRectangle, cylinder, cylinderElliptic, cuboid } = primitives;

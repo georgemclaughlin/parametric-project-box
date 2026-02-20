@@ -1,9 +1,9 @@
-import { buildAssembly } from "./model/box.js?v=5";
-import { exportStl } from "./export.js";
-import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js";
-import { DEFAULT_PARAMS, readParamsFromForm, writeParamsToForm } from "./state.js";
-import { validateParams } from "./validators.js?v=5";
-import { createViewer } from "./viewer.js";
+import { buildAssembly } from "./model/box.js?v=6";
+import { exportStl } from "./export.js?v=6";
+import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=6";
+import { DEFAULT_PARAMS, readParamsFromForm, writeParamsToForm } from "./state.js?v=6";
+import { validateParams } from "./validators.js?v=6";
+import { createViewer } from "./viewer.js?v=6";
 
 const form = document.querySelector("#params-form");
 const statusEl = document.querySelector("#status");

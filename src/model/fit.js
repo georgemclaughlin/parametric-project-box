@@ -5,8 +5,6 @@ export function deriveFit(params) {
 
   const safety = 0;
   const postRadius = params.postDiameter / 2;
-  const sinkHeadRadius = (params.screwHoleDiameter * 1.9) / 2;
-  const sinkSafety = 0.2;
 
   const innerLength = params.length - 2 * params.wallThickness;
   const innerWidth = params.width - 2 * params.wallThickness;
@@ -28,10 +26,6 @@ export function deriveFit(params) {
       innerRadius - (innerRadius - postRadius - safety) / Math.SQRT2;
     cornerInsetMin = Math.max(cornerInsetMin, params.wallThickness + minInsetFromInnerWall);
   }
-
-  // Keep enough corner material at lid holes so countersink relief remains effective at defaults.
-  const countersinkInsetMin = params.cornerRadius + sinkHeadRadius + sinkSafety;
-  cornerInsetMin = Math.max(cornerInsetMin, countersinkInsetMin);
 
   const maxInset = Math.min(params.length, params.width) / 2 - postRadius - safety;
   const feasible = maxInset >= cornerInsetMin;

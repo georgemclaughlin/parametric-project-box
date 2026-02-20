@@ -25,6 +25,20 @@ python3 -m http.server 4173
 
 Open `http://127.0.0.1:4173/`.
 
+## Cache busting workflow
+- Do not hand-edit mixed `?v=` query strings.
+- Use one command to keep all local module and asset version tokens in sync:
+
+```bash
+node scripts/bump-cache-version.mjs
+```
+
+- Optional explicit set:
+
+```bash
+node scripts/bump-cache-version.mjs --set 10
+```
+
 ## Validation checklist before finishing
 1. JS syntax checks pass:
    - `node --check src/main.js`

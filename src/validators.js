@@ -1,4 +1,4 @@
-import { deriveCenteredStandoffCenters, deriveFit } from "./model/fit.js?v=5";
+import { deriveCenteredStandoffCenters, deriveFit } from "./model/fit.js?v=6";
 
 export function validateParams(params) {
   const errors = [];
