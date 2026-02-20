@@ -1,4 +1,4 @@
-import { deriveFit } from "./model/fit.js";
+import { deriveCenteredStandoffCenters, deriveFit } from "./model/fit.js";
 
 export function validateParams(params) {
   const errors = [];
@@ -15,6 +15,10 @@ export function validateParams(params) {
     fitTolerance,
     postDiameter,
     screwHoleDiameter,
+    enableCenteredStandoffs,
+    standoffHeight,
+    standoffDiameter,
+    standoffHoleDiameter,
     enableVents,
     ventCount,
     ventWidth,
@@ -68,6 +72,51 @@ export function validateParams(params) {
   const postHeight = height - floorThickness;
   if (postHeight < 4) {
     errors.push("Body is too short for robust corner posts. Increase height or reduce floor thickness.");
+  }
+
+  if (enableCenteredStandoffs) {
+    if (!Number.isFinite(standoffHeight) || standoffHeight <= 0) {
+      errors.push("Standoff height must be a positive number.");
+    }
+    if (!Number.isFinite(standoffDiameter) || standoffDiameter <= 0) {
+      errors.push("Standoff diameter must be a positive number.");
+    }
+    if (!Number.isFinite(standoffHoleDiameter) || standoffHoleDiameter < 0) {
+      errors.push("Standoff hole diameter must be zero or greater.");
+    }
+    if (!Number.isFinite(params.standoffSpacingX) || params.standoffSpacingX <= 0) {
+      errors.push("Standoff spacing X must be a positive number.");
+    }
+    if (!Number.isFinite(params.standoffSpacingY) || params.standoffSpacingY <= 0) {
+      errors.push("Standoff spacing Y must be a positive number.");
+    }
+    if (standoffHoleDiameter > 0 && standoffHoleDiameter >= standoffDiameter) {
+      errors.push("Standoff hole diameter must be smaller than standoff diameter.");
+    }
+    if (standoffHeight < 2) {
+      errors.push("Standoff height must be at least 2 mm.");
+    }
+    if (standoffHeight > innerHeight - 1) {
+      errors.push("Standoff height is too tall for the current interior height.");
+    }
+
+    const standoffCenters = deriveCenteredStandoffCenters(params);
+    const maxX = innerLength / 2 - 0.2;
+    const maxY = innerWidth / 2 - 0.2;
+    const standoffRadius = standoffDiameter / 2;
+    for (const center of standoffCenters) {
+      if (Math.abs(center.x) + standoffRadius > maxX || Math.abs(center.y) + standoffRadius > maxY) {
+        errors.push("Centered standoffs do not fit inside the internal cavity. Reduce spacing or diameter.");
+        break;
+      }
+    }
+
+    if (standoffHoleDiameter > 0) {
+      const standoffWall = (standoffDiameter - standoffHoleDiameter) / 2;
+      if (standoffWall < 0.8) {
+        warnings.push("Standoff wall thickness below 0.8 mm may be fragile.");
+      }
+    }
   }
 
   if (wallThickness < 1.6) {

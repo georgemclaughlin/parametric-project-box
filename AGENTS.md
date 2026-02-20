@@ -11,6 +11,7 @@ Generate printable parametric project boxes in the browser and export STL files.
 - Prefer small, explicit modules over framework adoption.
 - Preserve millimeter units and current default assumptions for FDM printing.
 - Keep posts auto-corner (no manual post offset UI).
+- Centered board standoffs are additive to corner posts (do not replace lid fastener corners).
 
 ## Local development
 Run with a static server from repo root:
@@ -34,11 +35,13 @@ Open `http://127.0.0.1:4173/`.
 3. Confirm export buttons still work:
    - Combined export triggers both files
    - Individual export buttons still work
+4. Standoff edge case:
+   - With centered standoffs enabled, `standoffHoleDiameter = 0` stays valid and model still updates
 
 ## Architecture map
 - `src/main.js`: form events, debounced regeneration, status/errors, presets, exports
 - `src/model/features.js`: primitive geometry composition (shell, posts, vents, lid details)
-- `src/model/fit.js`: fit tolerance derivation and auto-corner post placement math
+- `src/model/fit.js`: fit tolerance derivation, auto-corner post placement math, centered standoff center math
 - `src/model/box.js`: body/lid assembly plus preview-only transforms
 - `src/viewer.js`: Three.js rendering pipeline and camera behavior
 - `src/validators.js`: hard errors and soft warnings

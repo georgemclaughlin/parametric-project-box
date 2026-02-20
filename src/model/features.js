@@ -4,7 +4,7 @@ import {
   primitives,
   transforms
 } from "https://esm.sh/@jscad/modeling@2.12.6";
-import { deriveFit } from "./fit.js";
+import { deriveCenteredStandoffCenters, deriveFit } from "./fit.js";
 
 const { subtract, union } = booleans;
 const { roundedRectangle, cylinder, cuboid } = primitives;
@@ -101,6 +101,49 @@ export function makePosts(params) {
   }
 
   return subtract(union(...posts, ...braces), union(...holes));
+}
+
+export function makeCenteredStandoffs(params) {
+  const {
+    height,
+    floorThickness,
+    standoffDiameter,
+    standoffHeight,
+    standoffHoleDiameter
+  } = params;
+  const standoffCenters = deriveCenteredStandoffCenters(params);
+
+  const bottomZ = -height / 2 + floorThickness;
+  const standoffCenterZ = bottomZ + standoffHeight / 2;
+  const holeCenterZ = bottomZ + standoffHeight / 2;
+
+  const standoffs = [];
+  const holes = [];
+  const hasHole = standoffHoleDiameter > 0;
+
+  for (const center of standoffCenters) {
+    standoffs.push(
+      translate(
+        [center.x, center.y, standoffCenterZ],
+        cylinder({ radius: standoffDiameter / 2, height: standoffHeight, segments: 36 })
+      )
+    );
+
+    if (hasHole) {
+      holes.push(
+        translate(
+          [center.x, center.y, holeCenterZ],
+          cylinder({ radius: standoffHoleDiameter / 2, height: standoffHeight + 0.3, segments: 32 })
+        )
+      );
+    }
+  }
+
+  if (!hasHole) {
+    return union(...standoffs);
+  }
+
+  return subtract(union(...standoffs), union(...holes));
 }
 
 export function cutVents(bodyGeom, params) {

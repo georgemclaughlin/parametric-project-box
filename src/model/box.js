@@ -1,6 +1,7 @@
 import { booleans, transforms } from "https://esm.sh/@jscad/modeling@2.12.6";
 import {
   cutVents,
+  makeCenteredStandoffs,
   makeLidHoles,
   makeLidLip,
   makeLidPlate,
@@ -14,6 +15,9 @@ const { rotateX, translate } = transforms;
 export function buildBody(params) {
   let body = makeRoundedShell(params);
   body = union(body, makePosts(params));
+  if (params.enableCenteredStandoffs) {
+    body = union(body, makeCenteredStandoffs(params));
+  }
 
   if (params.enableVents) {
     body = cutVents(body, params);

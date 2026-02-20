@@ -48,3 +48,15 @@ export function deriveFit(params) {
     ]
   };
 }
+
+export function deriveCenteredStandoffCenters(params) {
+  const x = params.standoffSpacingX / 2;
+  const y = params.standoffSpacingY / 2;
+
+  return [
+    { x: -x, y: -y },
+    { x: -x, y },
+    { x, y: -y },
+    { x, y }
+  ];
+}

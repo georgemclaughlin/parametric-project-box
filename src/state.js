@@ -11,6 +11,12 @@ export const DEFAULT_PARAMS = {
   postDiameter: 8,
   screwHoleDiameter: 2.6,
   countersink: false,
+  enableCenteredStandoffs: false,
+  standoffHeight: 6,
+  standoffDiameter: 5,
+  standoffHoleDiameter: 2.2,
+  standoffSpacingX: 58,
+  standoffSpacingY: 23,
   enableVents: false,
   ventFace: "front",
   ventCount: 6,
@@ -30,6 +36,11 @@ const NUMERIC_FIELDS = [
   "fitTolerance",
   "postDiameter",
   "screwHoleDiameter",
+  "standoffHeight",
+  "standoffDiameter",
+  "standoffHoleDiameter",
+  "standoffSpacingX",
+  "standoffSpacingY",
   "ventCount",
   "ventWidth",
   "ventSpacing"
@@ -45,6 +56,7 @@ export function readParamsFromForm(form) {
   }
 
   next.countersink = data.get("countersink") === "on";
+  next.enableCenteredStandoffs = data.get("enableCenteredStandoffs") === "on";
   next.enableVents = data.get("enableVents") === "on";
   next.ventFace = String(data.get("ventFace") || "front");
   next.ventCount = Math.round(next.ventCount);
