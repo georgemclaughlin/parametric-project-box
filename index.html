@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Parametric Project Box</title>
-    <link rel="icon" href="./favicon.svg?v=6" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=6" />
+    <link rel="icon" href="./favicon.svg?v=14" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=14" />
   </head>
   <body>
     <header class="topbar">
@@ -74,43 +74,184 @@
           </details>
 
           <details class="advanced-group">
-            <summary>Advanced: Vents</summary>
+            <summary>Advanced: Faces</summary>
             <section>
               <div class="adv-block">
-                <h3 class="adv-subtitle">Vent controls</h3>
+                <h3 class="adv-subtitle">Faces to edit</h3>
                 <label class="inline-check">
-                  <input type="checkbox" name="enableVents" />
+                  <input type="checkbox" name="faceEditFront" />
+                  Front
+                </label>
+                <label class="inline-check">
+                  <input type="checkbox" name="faceEditBack" checked />
+                  Back
+                </label>
+                <label class="inline-check">
+                  <input type="checkbox" name="faceEditLeft" />
+                  Left
+                </label>
+                <label class="inline-check">
+                  <input type="checkbox" name="faceEditRight" />
+                  Right
+                </label>
+              </div>
+
+              <div class="face-editor" data-face="front" hidden>
+                <h3 class="adv-subtitle">Front face</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventFrontEnabled" />
                   Enable vents
                 </label>
+                <div class="face-vent-params" data-face="front" hidden>
+                  <label>Vent count <input type="number" name="ventFrontCount" step="1" min="1" max="20" value="6" /></label>
+                  <label>Vent width <input type="number" name="ventFrontWidth" step="0.1" min="1" max="8" value="1.6" /></label>
+                  <label>Vent spacing <input type="number" name="ventFrontSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+                </div>
+
+                <label class="inline-check">
+                  <input type="checkbox" name="wireFront" />
+                  Enable cutout
+                </label>
+                <div class="face-cutout-params" data-face="front" hidden>
+                  <label>
+                    Cutout profile
+                    <select name="wireFrontProfile">
+                      <option value="rect" selected>Rectangular</option>
+                      <option value="round">Round</option>
+                    </select>
+                  </label>
+                  <div class="wire-round-geometry" data-face="front" hidden>
+                    <label>Round diameter <input type="number" name="wireFrontRoundDiameter" step="0.1" min="2" max="30" value="6" /></label>
+                  </div>
+                  <div class="wire-rect-geometry" data-face="front">
+                    <label>Rect width <input type="number" name="wireFrontRectWidth" step="0.1" min="3" max="40" value="10" /></label>
+                    <label>Rect height <input type="number" name="wireFrontRectHeight" step="0.1" min="1.5" max="20" value="4" /></label>
+                    <button type="button" class="wire-usbc-preset" data-face="front">Apply USB-C preset</button>
+                  </div>
+                  <label>Horizontal offset <input type="number" name="wireFrontOffsetH" step="0.1" min="-150" max="150" value="0" /></label>
+                  <label>Vertical offset <input type="number" name="wireFrontOffsetV" step="0.1" min="-80" max="80" value="0" /></label>
+                </div>
               </div>
-              <div class="adv-block">
-                <h3 class="adv-subtitle">Vent faces</h3>
+
+              <div class="face-editor" data-face="back" hidden>
+                <h3 class="adv-subtitle">Back face</h3>
                 <label class="inline-check">
-                  <input type="checkbox" name="ventFront" checked />
-                  Vent front
+                  <input type="checkbox" name="ventBackEnabled" />
+                  Enable vents
                 </label>
+                <div class="face-vent-params" data-face="back" hidden>
+                  <label>Vent count <input type="number" name="ventBackCount" step="1" min="1" max="20" value="6" /></label>
+                  <label>Vent width <input type="number" name="ventBackWidth" step="0.1" min="1" max="8" value="1.6" /></label>
+                  <label>Vent spacing <input type="number" name="ventBackSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+                </div>
+
                 <label class="inline-check">
-                  <input type="checkbox" name="ventBack" />
-                  Vent back
+                  <input type="checkbox" name="wireBack" checked />
+                  Enable cutout
                 </label>
-                <label class="inline-check">
-                  <input type="checkbox" name="ventLeft" />
-                  Vent left
-                </label>
-                <label class="inline-check">
-                  <input type="checkbox" name="ventRight" />
-                  Vent right
-                </label>
+                <div class="face-cutout-params" data-face="back" hidden>
+                  <label>
+                    Cutout profile
+                    <select name="wireBackProfile">
+                      <option value="rect" selected>Rectangular</option>
+                      <option value="round">Round</option>
+                    </select>
+                  </label>
+                  <div class="wire-round-geometry" data-face="back" hidden>
+                    <label>Round diameter <input type="number" name="wireBackRoundDiameter" step="0.1" min="2" max="30" value="6" /></label>
+                  </div>
+                  <div class="wire-rect-geometry" data-face="back">
+                    <label>Rect width <input type="number" name="wireBackRectWidth" step="0.1" min="3" max="40" value="10" /></label>
+                    <label>Rect height <input type="number" name="wireBackRectHeight" step="0.1" min="1.5" max="20" value="4" /></label>
+                    <button type="button" class="wire-usbc-preset" data-face="back">Apply USB-C preset</button>
+                  </div>
+                  <label>Horizontal offset <input type="number" name="wireBackOffsetH" step="0.1" min="-150" max="150" value="0" /></label>
+                  <label>Vertical offset <input type="number" name="wireBackOffsetV" step="0.1" min="-80" max="80" value="0" /></label>
+                </div>
               </div>
-              <div class="adv-block">
-                <h3 class="adv-subtitle">Vent geometry</h3>
-                <label>Vent count <input type="number" name="ventCount" step="1" min="1" max="20" value="6" /></label>
-                <label>Vent width <input type="number" name="ventWidth" step="0.1" min="1" max="8" value="1.6" /></label>
-                <label>Vent spacing <input type="number" name="ventSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+
+              <div class="face-editor" data-face="left" hidden>
+                <h3 class="adv-subtitle">Left face</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventLeftEnabled" />
+                  Enable vents
+                </label>
+                <div class="face-vent-params" data-face="left" hidden>
+                  <label>Vent count <input type="number" name="ventLeftCount" step="1" min="1" max="20" value="6" /></label>
+                  <label>Vent width <input type="number" name="ventLeftWidth" step="0.1" min="1" max="8" value="1.6" /></label>
+                  <label>Vent spacing <input type="number" name="ventLeftSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+                </div>
+
+                <label class="inline-check">
+                  <input type="checkbox" name="wireLeft" />
+                  Enable cutout
+                </label>
+                <div class="face-cutout-params" data-face="left" hidden>
+                  <label>
+                    Cutout profile
+                    <select name="wireLeftProfile">
+                      <option value="rect" selected>Rectangular</option>
+                      <option value="round">Round</option>
+                    </select>
+                  </label>
+                  <div class="wire-round-geometry" data-face="left" hidden>
+                    <label>Round diameter <input type="number" name="wireLeftRoundDiameter" step="0.1" min="2" max="30" value="6" /></label>
+                  </div>
+                  <div class="wire-rect-geometry" data-face="left">
+                    <label>Rect width <input type="number" name="wireLeftRectWidth" step="0.1" min="3" max="40" value="10" /></label>
+                    <label>Rect height <input type="number" name="wireLeftRectHeight" step="0.1" min="1.5" max="20" value="4" /></label>
+                    <button type="button" class="wire-usbc-preset" data-face="left">Apply USB-C preset</button>
+                  </div>
+                  <label>Horizontal offset <input type="number" name="wireLeftOffsetH" step="0.1" min="-150" max="150" value="0" /></label>
+                  <label>Vertical offset <input type="number" name="wireLeftOffsetV" step="0.1" min="-80" max="80" value="0" /></label>
+                </div>
+              </div>
+
+              <div class="face-editor" data-face="right" hidden>
+                <h3 class="adv-subtitle">Right face</h3>
+                <label class="inline-check">
+                  <input type="checkbox" name="ventRightEnabled" />
+                  Enable vents
+                </label>
+                <div class="face-vent-params" data-face="right" hidden>
+                  <label>Vent count <input type="number" name="ventRightCount" step="1" min="1" max="20" value="6" /></label>
+                  <label>Vent width <input type="number" name="ventRightWidth" step="0.1" min="1" max="8" value="1.6" /></label>
+                  <label>Vent spacing <input type="number" name="ventRightSpacing" step="0.1" min="0.8" max="8" value="1.2" /></label>
+                </div>
+
+                <label class="inline-check">
+                  <input type="checkbox" name="wireRight" />
+                  Enable cutout
+                </label>
+                <div class="face-cutout-params" data-face="right" hidden>
+                  <label>
+                    Cutout profile
+                    <select name="wireRightProfile">
+                      <option value="rect" selected>Rectangular</option>
+                      <option value="round">Round</option>
+                    </select>
+                  </label>
+                  <div class="wire-round-geometry" data-face="right" hidden>
+                    <label>Round diameter <input type="number" name="wireRightRoundDiameter" step="0.1" min="2" max="30" value="6" /></label>
+                  </div>
+                  <div class="wire-rect-geometry" data-face="right">
+                    <label>Rect width <input type="number" name="wireRightRectWidth" step="0.1" min="3" max="40" value="10" /></label>
+                    <label>Rect height <input type="number" name="wireRightRectHeight" step="0.1" min="1.5" max="20" value="4" /></label>
+                    <button type="button" class="wire-usbc-preset" data-face="right">Apply USB-C preset</button>
+                  </div>
+                  <label>Horizontal offset <input type="number" name="wireRightOffsetH" step="0.1" min="-150" max="150" value="0" /></label>
+                  <label>Vertical offset <input type="number" name="wireRightOffsetV" step="0.1" min="-80" max="80" value="0" /></label>
+                </div>
               </div>
             </section>
           </details>
         </form>
+
+        <section>
+          <h2>Status</h2>
+          <div id="status" aria-live="polite">Ready.</div>
+          <ul id="errors"></ul>
+        </section>
 
         <section>
           <h2>Export</h2>
@@ -135,19 +276,17 @@
             <button id="delete-preset" type="button">Delete</button>
           </div>
         </section>
-
-        <section>
-          <h2>Status</h2>
-          <div id="status" aria-live="polite">Ready.</div>
-          <ul id="errors"></ul>
-        </section>
       </aside>
 
       <section class="viewer-wrap" aria-label="3D preview">
         <div id="viewer"></div>
+        <div id="viewer-overlay" hidden>
+          <strong>Model invalid</strong>
+          <span id="viewer-overlay-detail">Fix highlighted settings to continue preview updates.</span>
+        </div>
       </section>
     </main>
 
-    <script type="module" src="./src/main.js?v=6"></script>
+    <script type="module" src="./src/main.js?v=14"></script>
   </body>
 </html>

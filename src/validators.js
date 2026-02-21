@@ -1,4 +1,16 @@
-import { deriveCenteredStandoffCenters, deriveFit } from "./model/fit.js?v=6";
+import {
+  deriveCenteredStandoffCenters,
+  deriveFit,
+  deriveTrimmedVentSlotsByFace,
+  deriveVentSlotCentersZForFace,
+  deriveWireCutoutSpecForFace
+} from "./model/fit.js?v=14";
+
+const FACES = ["front", "back", "left", "right"];
+
+function capFace(face) {
+  return face.charAt(0).toUpperCase() + face.slice(1);
+}
 
 export function validateParams(params) {
   const errors = [];
@@ -18,15 +30,7 @@ export function validateParams(params) {
     enableCenteredStandoffs,
     standoffHeight,
     standoffDiameter,
-    standoffHoleDiameter,
-    enableVents,
-    ventFront,
-    ventBack,
-    ventLeft,
-    ventRight,
-    ventCount,
-    ventWidth,
-    ventSpacing
+    standoffHoleDiameter
   } = params;
 
   const innerLength = length - 2 * wallThickness;
@@ -52,12 +56,10 @@ export function validateParams(params) {
 
   if (!Number.isFinite(fitTolerance) || fitTolerance <= 0) {
     errors.push("Fit tolerance must be a positive number.");
-  } else {
-    if (fitTolerance < 0.1 || fitTolerance > 0.6) {
-      errors.push("Fit tolerance must be between 0.10 mm and 0.60 mm.");
-    } else if (fitTolerance < 0.15 || fitTolerance > 0.4) {
-      warnings.push("Fit tolerance outside 0.15-0.40 mm may need print tuning.");
-    }
+  } else if (fitTolerance < 0.1 || fitTolerance > 0.6) {
+    errors.push("Fit tolerance must be between 0.10 mm and 0.60 mm.");
+  } else if (fitTolerance < 0.15 || fitTolerance > 0.4) {
+    warnings.push("Fit tolerance outside 0.15-0.40 mm may need print tuning.");
   }
 
   const fit = deriveFit(params);
@@ -131,17 +133,91 @@ export function validateParams(params) {
     warnings.push("Floor thickness below 2.0 mm may flex under mounted components.");
   }
 
-  if (enableVents) {
-    if (!ventFront && !ventBack && !ventLeft && !ventRight) {
-      warnings.push("No vent face selected. Front vents will be used.");
+  const minWeb = 1.2;
+  const bottomZ = -height / 2 + floorThickness;
+  const topZ = height / 2;
+
+  for (const face of FACES) {
+    const suffix = capFace(face);
+    const ventEnabled = Boolean(params[`vent${suffix}Enabled`]);
+    const wireEnabled = Boolean(params[`wire${suffix}`]);
+
+    if (ventEnabled) {
+      const count = Number(params[`vent${suffix}Count`]);
+      const widthV = Number(params[`vent${suffix}Width`]);
+      const spacing = Number(params[`vent${suffix}Spacing`]);
+
+      if (!Number.isFinite(count) || count < 1) {
+        errors.push(`${suffix} vent count must be at least 1.`);
+      }
+      if (!Number.isFinite(widthV) || widthV < 1) {
+        errors.push(`${suffix} vent width must be at least 1.0 mm.`);
+      }
+      if (!Number.isFinite(spacing) || spacing < 0.8) {
+        errors.push(`${suffix} vent spacing must be at least 0.8 mm.`);
+      }
+      if (Number.isFinite(spacing) && spacing < 1) {
+        warnings.push(`${suffix} vent spacing below 1.0 mm can weaken side walls.`);
+      }
+
+      const slotCenters = deriveVentSlotCentersZForFace(params, face);
+      if (slotCenters.length > 0) {
+        const slotHalf = widthV / 2;
+        const minZ = Math.min(...slotCenters) - slotHalf;
+        const maxZ = Math.max(...slotCenters) + slotHalf;
+        if (minZ <= -height / 2 + floorThickness + 0.2 || maxZ >= height / 2 - 0.2) {
+          errors.push(`${suffix} vent stack is too tall for this side wall.`);
+        }
+      }
     }
-    const ventStackHeight = ventCount * ventWidth + (ventCount - 1) * ventSpacing;
-    if (ventStackHeight > height - floorThickness - 8) {
-      errors.push("Vent stack is too tall for this side wall.");
+
+    if (wireEnabled) {
+      const spec = deriveWireCutoutSpecForFace(params, face);
+      const faceLabel = `${suffix} cutout`;
+
+      if (!Number.isFinite(spec.width) || spec.width <= 0) {
+        errors.push(`${faceLabel} width must be a positive number.`);
+      }
+      if (!Number.isFinite(spec.height) || spec.height <= 0) {
+        errors.push(`${faceLabel} height must be a positive number.`);
+      }
+
+      if (spec.profile === "round" && spec.width < 2) {
+        errors.push(`${faceLabel} round diameter must be at least 2.0 mm.`);
+      }
+      if (spec.profile === "rect" && spec.width < 3) {
+        errors.push(`${faceLabel} width must be at least 3.0 mm.`);
+      }
+      if (spec.profile === "rect" && spec.height < 1.5) {
+        errors.push(`${faceLabel} height must be at least 1.5 mm.`);
+      }
+
+      const maxOffsetH = spec.horizontalSpan / 2 - spec.width / 2 - minWeb;
+      if (!Number.isFinite(maxOffsetH) || maxOffsetH < 0) {
+        errors.push(`${faceLabel} is too wide for the selected face.`);
+      } else if (Math.abs(spec.offsetH) > maxOffsetH) {
+        errors.push(`${faceLabel} horizontal offset is out of bounds.`);
+      }
+
+      if (spec.cutBottom <= bottomZ + minWeb) {
+        errors.push(`${faceLabel} vertical offset is too low for floor clearance.`);
+      }
+      if (spec.cutTop >= topZ - minWeb) {
+        errors.push(`${faceLabel} vertical offset is too high for top-edge clearance.`);
+      }
     }
-    if (ventSpacing < 1) {
-      warnings.push("Vent spacing below 1.0 mm can weaken side walls.");
-    }
+  }
+
+  const trimmedByFace = deriveTrimmedVentSlotsByFace(params, minWeb);
+  const trimmedFaces = FACES.filter((face) => {
+    const suffix = capFace(face);
+    if (!params[`vent${suffix}Enabled`] || !params[`wire${suffix}`]) return false;
+    const slots = deriveVentSlotCentersZForFace(params, face);
+    return slots.length > 0 && (trimmedByFace[face] || []).length < slots.length;
+  }).map((face) => capFace(face));
+
+  if (trimmedFaces.length > 0) {
+    warnings.push(`Vents auto-trimmed on: ${trimmedFaces.join(", ")}.`);
   }
 
   return {

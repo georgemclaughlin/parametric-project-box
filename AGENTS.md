@@ -14,7 +14,7 @@ Generate printable parametric project boxes in the browser and export STL files.
 - Centered board standoffs are additive to corner posts (do not replace lid fastener corners).
 - Keep fasteners and centered standoffs as separate advanced UI sections.
 - Keep countersink lid-hole behavior visibly effective at defaults (preview and STL).
-- Keep vent face controls disabled unless vents are enabled.
+- Keep per-face vent and cutout parameter groups hidden unless that face-level enable checkbox is checked.
 
 ## Local development
 Run with a static server from repo root:
@@ -56,11 +56,14 @@ node scripts/bump-cache-version.mjs --set 10
    - With centered standoffs enabled, `standoffHoleDiameter = 0` stays valid and model still updates
 5. Countersink check:
    - With default params, toggling `countersink` changes lid geometry (preview tris and exported STL hash/size)
+6. Faces UX check:
+   - In `Advanced: Faces`, per-face vent parameters are hidden until `Enable vents` is checked
+   - Per-face cutout profile/geometry/offset parameters are hidden until `Enable cutout` is checked
 
 ## Architecture map
-- `src/main.js`: form events, debounced regeneration, status/errors, presets, exports
-- `src/model/features.js`: primitive geometry composition (shell, posts, vents, lid details)
-- `src/model/fit.js`: fit tolerance derivation, auto-corner post placement math, centered standoff center math
+- `src/main.js`: form events, debounced regeneration, status/errors/hints/overlay, presets, exports
+- `src/model/features.js`: primitive geometry composition (shell, posts, per-face vents/cutouts, lid details)
+- `src/model/fit.js`: fit tolerance derivation, auto-corner post placement math, centered standoff center math, per-face vent/cutout helper math
 - `src/model/box.js`: body/lid assembly plus preview-only transforms
 - `src/viewer.js`: Three.js rendering pipeline and camera behavior
 - `src/validators.js`: hard errors and soft warnings

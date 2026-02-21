@@ -1,5 +1,6 @@
 import { booleans, transforms } from "https://esm.sh/@jscad/modeling@2.12.6";
 import {
+  cutWireCutouts,
   cutVents,
   makeCenteredStandoffs,
   makeLidHoles,
@@ -7,7 +8,7 @@ import {
   makeLidPlate,
   makePosts,
   makeRoundedShell
-} from "./features.js?v=6";
+} from "./features.js?v=14";
 
 const { union } = booleans;
 const { rotateX, translate } = transforms;
@@ -19,9 +20,8 @@ export function buildBody(params) {
     body = union(body, makeCenteredStandoffs(params));
   }
 
-  if (params.enableVents) {
-    body = cutVents(body, params);
-  }
+  body = cutVents(body, params);
+  body = cutWireCutouts(body, params);
 
   return body;
 }

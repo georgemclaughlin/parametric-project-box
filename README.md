@@ -10,7 +10,7 @@ Static browser app for generating simple electronics enclosure STLs (body + lid)
 - Corner posts/holes are auto-positioned to maximum safe corner placement
 - Optional advanced controls (collapsed by default):
   - Fasteners (posts, holes, countersink)
-  - Vents
+  - Faces: per-face vents + wire cutouts (round/rect with horizontal/vertical offsets and USB-C quick preset)
 - Preview layout: body + upside-down lid placed side-by-side
 - Semi-transparent preview materials for easier visual inspection
 - Export options:
@@ -41,8 +41,11 @@ Open: `http://127.0.0.1:4173/`
 - Units are millimeters.
 - Geometry validation blocks invalid combinations and preserves the previous valid preview.
 - Older saved presets using deprecated fields are discarded and reset to defaults.
+- Presets saved before schema updates (including wire-cutout fields) are pruned as incompatible.
 - If browser blocks the primary export action, allow multiple downloads for the site.
 - Rendering requires WebGL.
+- USB-C preset dimensions are nominal; adjust for connector shell tolerances and printer calibration.
+- Invalid parameter states show an overlay in the model area and a single inline hint near the last edited field when possible.
 
 ## File map
 - `index.html`: UI structure and controls

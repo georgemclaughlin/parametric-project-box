@@ -1,9 +1,21 @@
-import { buildAssembly } from "./model/box.js?v=6";
-import { exportStl } from "./export.js?v=6";
-import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=6";
-import { DEFAULT_PARAMS, readParamsFromForm, writeParamsToForm } from "./state.js?v=6";
-import { validateParams } from "./validators.js?v=6";
-import { createViewer } from "./viewer.js?v=6";
+import { buildAssembly } from "./model/box.js?v=14";
+import { exportStl } from "./export.js?v=14";
+import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=14";
+import {
+  DEFAULT_PARAMS,
+  readParamsFromForm,
+  USB_C_PRESET_HEIGHT,
+  USB_C_PRESET_WIDTH,
+  writeParamsToForm
+} from "./state.js?v=14";
+import { validateParams } from "./validators.js?v=14";
+import { createViewer } from "./viewer.js?v=14";
+
+const FACES = ["front", "back", "left", "right"];
+
+function capFace(face) {
+  return face.charAt(0).toUpperCase() + face.slice(1);
+}
 
 const form = document.querySelector("#params-form");
 const statusEl = document.querySelector("#status");
@@ -21,32 +33,124 @@ const exportBodyBtn = document.querySelector("#export-body");
 const exportLidBtn = document.querySelector("#export-lid");
 
 const viewerContainer = document.querySelector("#viewer");
-const enableVentsEl = form.elements.namedItem("enableVents");
-const ventFaceEls = [
-  form.elements.namedItem("ventFront"),
-  form.elements.namedItem("ventBack"),
-  form.elements.namedItem("ventLeft"),
-  form.elements.namedItem("ventRight")
-];
+const viewerOverlayEl = document.querySelector("#viewer-overlay");
+const viewerOverlayDetailEl = document.querySelector("#viewer-overlay-detail");
+
+function faceEls(face) {
+  const suffix = capFace(face);
+  return {
+    editToggle: form.elements.namedItem(`faceEdit${suffix}`),
+    block: document.querySelector(`.face-editor[data-face="${face}"]`),
+    ventEnabled: form.elements.namedItem(`vent${suffix}Enabled`),
+    ventParams: document.querySelector(`.face-vent-params[data-face="${face}"]`),
+    ventCount: form.elements.namedItem(`vent${suffix}Count`),
+    ventWidth: form.elements.namedItem(`vent${suffix}Width`),
+    ventSpacing: form.elements.namedItem(`vent${suffix}Spacing`),
+    wireEnabled: form.elements.namedItem(`wire${suffix}`),
+    wireParams: document.querySelector(`.face-cutout-params[data-face="${face}"]`),
+    wireProfile: form.elements.namedItem(`wire${suffix}Profile`),
+    wireRoundDiameter: form.elements.namedItem(`wire${suffix}RoundDiameter`),
+    wireRectWidth: form.elements.namedItem(`wire${suffix}RectWidth`),
+    wireRectHeight: form.elements.namedItem(`wire${suffix}RectHeight`),
+    wireOffsetH: form.elements.namedItem(`wire${suffix}OffsetH`),
+    wireOffsetV: form.elements.namedItem(`wire${suffix}OffsetV`),
+    roundSection: document.querySelector(`.wire-round-geometry[data-face="${face}"]`),
+    rectSection: document.querySelector(`.wire-rect-geometry[data-face="${face}"]`),
+    presetBtn: document.querySelector(`.wire-usbc-preset[data-face="${face}"]`)
+  };
+}
+
+const perFace = Object.fromEntries(FACES.map((face) => [face, faceEls(face)]));
 
 let currentParams = { ...DEFAULT_PARAMS, ...DEFAULT_PRESET.params };
 let currentModel = null;
 let debounceTimer = null;
 let viewer = null;
+let lastTouchedFieldName = "";
+let activeFieldHintEl = null;
 
-function syncVentControls() {
-  const enabled = Boolean(enableVentsEl && "checked" in enableVentsEl && enableVentsEl.checked);
-  for (const el of ventFaceEls) {
-    if (!el || !("disabled" in el)) continue;
-    el.disabled = !enabled;
+function clearFieldHint() {
+  if (activeFieldHintEl && activeFieldHintEl.parentNode) {
+    activeFieldHintEl.parentNode.removeChild(activeFieldHintEl);
+  }
+  activeFieldHintEl = null;
+}
+
+function showFieldHint(fieldName, text) {
+  clearFieldHint();
+  if (!fieldName || !text) return;
+
+  const target = form.elements.namedItem(fieldName);
+  if (!target || target instanceof RadioNodeList) return;
+
+  const label = target.closest("label");
+  if (!label) return;
+
+  const hint = document.createElement("span");
+  hint.className = "field-hint";
+  hint.textContent = text;
+  label.insertAdjacentElement("afterend", hint);
+  activeFieldHintEl = hint;
+}
+
+function setOverlayState(visible, detail = "") {
+  if (!viewerOverlayEl || !viewerOverlayDetailEl) return;
+  viewerOverlayEl.hidden = !visible;
+  viewerOverlayDetailEl.textContent = detail || "Fix highlighted settings to continue preview updates.";
+}
+
+function syncFaceControls() {
+  for (const face of FACES) {
+    const els = perFace[face];
+    const editVisible = Boolean(els.editToggle?.checked);
+    if (els.block) {
+      els.block.hidden = !editVisible;
+    }
+
+    const ventOn = Boolean(els.ventEnabled?.checked);
+    if (els.ventParams) {
+      els.ventParams.hidden = !ventOn;
+    }
+    if (els.ventCount && "disabled" in els.ventCount) els.ventCount.disabled = !ventOn;
+    if (els.ventWidth && "disabled" in els.ventWidth) els.ventWidth.disabled = !ventOn;
+    if (els.ventSpacing && "disabled" in els.ventSpacing) els.ventSpacing.disabled = !ventOn;
+
+    const wireOn = Boolean(els.wireEnabled?.checked);
+    if (els.wireParams) {
+      els.wireParams.hidden = !wireOn;
+    }
+    const profile = String(els.wireProfile?.value || "rect");
+    if (els.roundSection) {
+      els.roundSection.hidden = profile !== "round";
+    }
+    if (els.rectSection) {
+      els.rectSection.hidden = profile !== "rect";
+    }
+
+    if (els.wireProfile && "disabled" in els.wireProfile) els.wireProfile.disabled = !wireOn;
+    if (els.wireOffsetH && "disabled" in els.wireOffsetH) els.wireOffsetH.disabled = !wireOn;
+    if (els.wireOffsetV && "disabled" in els.wireOffsetV) els.wireOffsetV.disabled = !wireOn;
+    if (els.wireRoundDiameter && "disabled" in els.wireRoundDiameter) {
+      els.wireRoundDiameter.disabled = !wireOn || profile !== "round";
+    }
+    if (els.wireRectWidth && "disabled" in els.wireRectWidth) {
+      els.wireRectWidth.disabled = !wireOn || profile !== "rect";
+    }
+    if (els.wireRectHeight && "disabled" in els.wireRectHeight) {
+      els.wireRectHeight.disabled = !wireOn || profile !== "rect";
+    }
+    if (els.presetBtn && "disabled" in els.presetBtn) {
+      els.presetBtn.disabled = !wireOn || profile !== "rect";
+    }
   }
 }
 
-function renderErrors(messages) {
+function renderMessages(messages, level = "error") {
   errorsEl.innerHTML = "";
   for (const msg of messages) {
     const item = document.createElement("li");
     item.textContent = msg;
+    item.className = level;
     errorsEl.appendChild(item);
   }
 }
@@ -72,6 +176,24 @@ function refreshPresetSelect() {
   }
 }
 
+function mapMessageToField(message) {
+  const lower = String(message || "").toLowerCase();
+  const face = FACES.find((f) => lower.includes(f));
+  if (face) {
+    const suffix = capFace(face);
+    if (lower.includes("vent count")) return `vent${suffix}Count`;
+    if (lower.includes("vent width")) return `vent${suffix}Width`;
+    if (lower.includes("vent spacing")) return `vent${suffix}Spacing`;
+    if (lower.includes("horizontal")) return `wire${suffix}OffsetH`;
+    if (lower.includes("vertical") || lower.includes("floor") || lower.includes("top-edge") || lower.includes("top edge")) return `wire${suffix}OffsetV`;
+    if (lower.includes("round diameter")) return `wire${suffix}RoundDiameter`;
+    if (lower.includes("width")) return `wire${suffix}RectWidth`;
+    if (lower.includes("height")) return `wire${suffix}RectHeight`;
+    if (lower.includes("profile")) return `wire${suffix}Profile`;
+  }
+  return lastTouchedFieldName || "";
+}
+
 function regenerate() {
   if (!viewer) return;
 
@@ -80,7 +202,9 @@ function regenerate() {
   const check = validateParams(nextParams);
 
   if (!check.valid) {
-    renderErrors(check.errors);
+    renderMessages(check.errors, "error");
+    setOverlayState(true, check.errors[0]);
+    showFieldHint(mapMessageToField(check.errors[0]), check.errors[0]);
     setStatus("Invalid parameters. Previous valid model is shown.");
     return;
   }
@@ -92,21 +216,24 @@ function regenerate() {
     currentParams = nextParams;
     currentModel = assembly;
 
-    const messages = [...check.warnings];
-    renderErrors(messages);
+    renderMessages(check.warnings, "info");
+    setOverlayState(false);
+    clearFieldHint();
 
     setStatus(
       `Model updated. Body: ${Math.round(tri.bodyTriangles)} tris, Lid: ${Math.round(tri.lidTriangles)} tris.`
     );
   } catch (err) {
-    renderErrors(["Geometry generation failed."]);
+    renderMessages(["Geometry generation failed."], "error");
+    setOverlayState(true, "Geometry generation failed. Adjust the last edited settings.");
+    showFieldHint(lastTouchedFieldName, "Geometry failed from this setting combination.");
     setStatus(String(err));
   }
 }
 
 function queueRegenerate() {
   if (!viewer) return;
-  syncVentControls();
+  syncFaceControls();
   setStatus("Regenerating...");
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(regenerate, 250);
@@ -114,7 +241,7 @@ function queueRegenerate() {
 
 function loadParams(params) {
   writeParamsToForm(form, params);
-  syncVentControls();
+  syncFaceControls();
   updateInnerSummary(params);
   queueRegenerate();
 }
@@ -128,8 +255,16 @@ function updateInnerSummary(params) {
   innerDimsEl.textContent = `${safe(innerLength)} x ${safe(innerWidth)} x ${safe(innerHeight)} mm`;
 }
 
-form.addEventListener("input", queueRegenerate);
-form.addEventListener("change", queueRegenerate);
+function handleFormInteraction(event) {
+  const target = event.target;
+  if (target && "name" in target && typeof target.name === "string" && target.name) {
+    lastTouchedFieldName = target.name;
+  }
+  queueRegenerate();
+}
+
+form.addEventListener("input", handleFormInteraction);
+form.addEventListener("change", handleFormInteraction);
 
 savePresetBtn.addEventListener("click", () => {
   const name = presetNameEl.value.trim();
@@ -167,6 +302,20 @@ deletePresetBtn.addEventListener("click", () => {
   queueRegenerate();
 });
 
+for (const face of FACES) {
+  const els = perFace[face];
+  els.presetBtn?.addEventListener("click", () => {
+    if (els.wireRectWidth) {
+      els.wireRectWidth.value = String(USB_C_PRESET_WIDTH);
+      lastTouchedFieldName = els.wireRectWidth.name;
+    }
+    if (els.wireRectHeight) {
+      els.wireRectHeight.value = String(USB_C_PRESET_HEIGHT);
+    }
+    queueRegenerate();
+  });
+}
+
 exportBodyBtn.addEventListener("click", () => {
   if (!currentModel) {
     setStatus("No valid model to export.");
@@ -198,7 +347,7 @@ exportAllBtn.addEventListener("click", async () => {
 });
 
 refreshPresetSelect();
-syncVentControls();
+syncFaceControls();
 
 function hasWebGLSupport() {
   try {

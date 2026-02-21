@@ -1,6 +1,9 @@
 const STORAGE_KEY = "parametric-box-presets-v1";
 const DEFAULT_PRESET_NAME = "ESP32 Base";
 const DEPRECATED_FIELDS = ["postOffset", "lipClearance"];
+
+const FACE_KEYS = ["Front", "Back", "Left", "Right"];
+
 const REQUIRED_FIELDS = [
   "length",
   "width",
@@ -19,16 +22,25 @@ const REQUIRED_FIELDS = [
   "standoffDiameter",
   "standoffHoleDiameter",
   "standoffSpacingX",
-  "standoffSpacingY",
-  "enableVents",
-  "ventFront",
-  "ventBack",
-  "ventLeft",
-  "ventRight",
-  "ventCount",
-  "ventWidth",
-  "ventSpacing"
+  "standoffSpacingY"
 ];
+
+for (const face of FACE_KEYS) {
+  REQUIRED_FIELDS.push(
+    `faceEdit${face}`,
+    `vent${face}Enabled`,
+    `vent${face}Count`,
+    `vent${face}Width`,
+    `vent${face}Spacing`,
+    `wire${face}`,
+    `wire${face}Profile`,
+    `wire${face}RoundDiameter`,
+    `wire${face}RectWidth`,
+    `wire${face}RectHeight`,
+    `wire${face}OffsetH`,
+    `wire${face}OffsetV`
+  );
+}
 
 export const DEFAULT_PRESET = {
   name: DEFAULT_PRESET_NAME,
@@ -51,14 +63,54 @@ export const DEFAULT_PRESET = {
     standoffHoleDiameter: 2.2,
     standoffSpacingX: 58,
     standoffSpacingY: 23,
-    enableVents: false,
-    ventFront: true,
-    ventBack: false,
-    ventLeft: false,
-    ventRight: false,
-    ventCount: 6,
-    ventWidth: 1.6,
-    ventSpacing: 1.2
+    faceEditFront: false,
+    faceEditBack: true,
+    faceEditLeft: false,
+    faceEditRight: false,
+    ventFrontEnabled: false,
+    ventFrontCount: 6,
+    ventFrontWidth: 1.6,
+    ventFrontSpacing: 1.2,
+    ventBackEnabled: false,
+    ventBackCount: 6,
+    ventBackWidth: 1.6,
+    ventBackSpacing: 1.2,
+    ventLeftEnabled: false,
+    ventLeftCount: 6,
+    ventLeftWidth: 1.6,
+    ventLeftSpacing: 1.2,
+    ventRightEnabled: false,
+    ventRightCount: 6,
+    ventRightWidth: 1.6,
+    ventRightSpacing: 1.2,
+    wireFront: false,
+    wireFrontProfile: "rect",
+    wireFrontRoundDiameter: 6,
+    wireFrontRectWidth: 10,
+    wireFrontRectHeight: 4,
+    wireFrontOffsetH: 0,
+    wireFrontOffsetV: 0,
+    wireBack: true,
+    wireBackProfile: "rect",
+    wireBackRoundDiameter: 6,
+    wireBackRectWidth: 10,
+    wireBackRectHeight: 4,
+    wireBackOffsetH: 0,
+    wireBackOffsetV: 0,
+    wireLeft: false,
+    wireLeftProfile: "rect",
+    wireLeftRoundDiameter: 6,
+    wireLeftRectWidth: 10,
+    wireLeftRectHeight: 4,
+    wireLeftOffsetH: 0,
+    wireLeftOffsetV: 0,
+    wireRight: false,
+    wireRightProfile: "rect",
+    wireRightRoundDiameter: 6,
+    wireRightRectWidth: 10,
+    wireRightRectHeight: 4,
+    wireRightOffsetH: 0,
+    wireRightOffsetV: 0
   }
 };
 

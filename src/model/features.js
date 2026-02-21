@@ -4,12 +4,18 @@ import {
   primitives,
   transforms
 } from "https://esm.sh/@jscad/modeling@2.12.6";
-import { deriveCenteredStandoffCenters, deriveFit } from "./fit.js?v=6";
+import {
+  deriveCenteredStandoffCenters,
+  deriveFit,
+  deriveTrimmedVentSlotsByFace,
+  deriveVentSlotCentersZForFace,
+  deriveWireCutoutSpecForFace
+} from "./fit.js?v=14";
 
 const { subtract, union } = booleans;
 const { roundedRectangle, cylinder, cylinderElliptic, cuboid } = primitives;
 const { extrudeLinear } = extrusions;
-const { translate } = transforms;
+const { rotateX, rotateY, translate } = transforms;
 
 function safeRadius(sizeA, sizeB, desired, sizeC = Infinity) {
   const lim = Math.max(0, Math.min(sizeA, sizeB, sizeC) / 2 - 0.01);
@@ -150,36 +156,25 @@ export function cutVents(bodyGeom, params) {
   const {
     length,
     width,
-    height,
-    wallThickness,
-    floorThickness,
-    ventFront,
-    ventBack,
-    ventLeft,
-    ventRight,
-    ventCount,
-    ventWidth,
-    ventSpacing
+    wallThickness
   } = params;
 
-  const usableHeight = height - floorThickness - 8;
-  const totalVentHeight = ventCount * ventWidth + (ventCount - 1) * ventSpacing;
-  const startZ = -height / 2 + floorThickness + 4 + (usableHeight - totalVentHeight) / 2;
-
+  const trimmedByFace = deriveTrimmedVentSlotsByFace(params, 1.2);
   const cuts = [];
-  const faces = [];
-  if (ventFront) faces.push("front");
-  if (ventBack) faces.push("back");
-  if (ventLeft) faces.push("left");
-  if (ventRight) faces.push("right");
-
+  const faces = ["front", "back", "left", "right"];
   for (const face of faces) {
+    const suffix = face.charAt(0).toUpperCase() + face.slice(1);
+    if (!params[`vent${suffix}Enabled`]) continue;
     const slotLength = (face === "front" || face === "back")
       ? Math.max(10, length - 20)
       : Math.max(10, width - 20);
+    const slotCenters = deriveVentSlotCentersZForFace(params, face);
+    const ventWidth = Number(params[`vent${suffix}Width`]);
 
-    for (let i = 0; i < ventCount; i += 1) {
-      const z = startZ + i * (ventWidth + ventSpacing) + ventWidth / 2;
+    const keptIndices = trimmedByFace[face] || [];
+    for (const i of keptIndices) {
+      const z = slotCenters[i];
+      if (!Number.isFinite(z)) continue;
 
       if (face === "front" || face === "back") {
         const y = face === "front" ? width / 2 - wallThickness / 2 : -width / 2 + wallThickness / 2;
@@ -198,6 +193,37 @@ export function cutVents(bodyGeom, params) {
           )
         );
       }
+    }
+  }
+
+  if (cuts.length === 0) return bodyGeom;
+  return subtract(bodyGeom, union(...cuts));
+}
+
+export function cutWireCutouts(bodyGeom, params) {
+  const { wallThickness } = params;
+  const cutDepth = wallThickness + 2;
+  const cuts = [];
+  const faces = ["front", "back", "left", "right"];
+
+  for (const face of faces) {
+    const spec = deriveWireCutoutSpecForFace(params, face);
+    if (!spec.enabled) continue;
+
+    let cut = null;
+    if (spec.profile === "round") {
+      const round = cylinder({ radius: spec.width / 2, height: cutDepth, segments: 48 });
+      cut = spec.isFrontBack ? rotateX(Math.PI / 2, round) : rotateY(Math.PI / 2, round);
+    } else if (spec.isFrontBack) {
+      cut = cuboid({ size: [spec.width, cutDepth, spec.height] });
+    } else {
+      cut = cuboid({ size: [cutDepth, spec.width, spec.height] });
+    }
+
+    if (spec.isFrontBack) {
+      cuts.push(translate([spec.center.x, spec.center.y, spec.center.z], cut));
+    } else {
+      cuts.push(translate([spec.center.x, spec.center.y, spec.center.z], cut));
     }
   }
 

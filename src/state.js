@@ -1,3 +1,8 @@
+export const USB_C_PRESET_WIDTH = 11;
+export const USB_C_PRESET_HEIGHT = 5.5;
+
+const FACE_KEYS = ["Front", "Back", "Left", "Right"];
+
 export const DEFAULT_PARAMS = {
   length: 95,
   width: 65,
@@ -17,14 +22,54 @@ export const DEFAULT_PARAMS = {
   standoffHoleDiameter: 2.2,
   standoffSpacingX: 58,
   standoffSpacingY: 23,
-  enableVents: false,
-  ventFront: true,
-  ventBack: false,
-  ventLeft: false,
-  ventRight: false,
-  ventCount: 6,
-  ventWidth: 1.6,
-  ventSpacing: 1.2
+  faceEditFront: false,
+  faceEditBack: true,
+  faceEditLeft: false,
+  faceEditRight: false,
+  ventFrontEnabled: false,
+  ventFrontCount: 6,
+  ventFrontWidth: 1.6,
+  ventFrontSpacing: 1.2,
+  ventBackEnabled: false,
+  ventBackCount: 6,
+  ventBackWidth: 1.6,
+  ventBackSpacing: 1.2,
+  ventLeftEnabled: false,
+  ventLeftCount: 6,
+  ventLeftWidth: 1.6,
+  ventLeftSpacing: 1.2,
+  ventRightEnabled: false,
+  ventRightCount: 6,
+  ventRightWidth: 1.6,
+  ventRightSpacing: 1.2,
+  wireFront: false,
+  wireFrontProfile: "rect",
+  wireFrontRoundDiameter: 6,
+  wireFrontRectWidth: 10,
+  wireFrontRectHeight: 4,
+  wireFrontOffsetH: 0,
+  wireFrontOffsetV: 0,
+  wireBack: true,
+  wireBackProfile: "rect",
+  wireBackRoundDiameter: 6,
+  wireBackRectWidth: 10,
+  wireBackRectHeight: 4,
+  wireBackOffsetH: 0,
+  wireBackOffsetV: 0,
+  wireLeft: false,
+  wireLeftProfile: "rect",
+  wireLeftRoundDiameter: 6,
+  wireLeftRectWidth: 10,
+  wireLeftRectHeight: 4,
+  wireLeftOffsetH: 0,
+  wireLeftOffsetV: 0,
+  wireRight: false,
+  wireRightProfile: "rect",
+  wireRightRoundDiameter: 6,
+  wireRightRectWidth: 10,
+  wireRightRectHeight: 4,
+  wireRightOffsetH: 0,
+  wireRightOffsetV: 0
 };
 
 const NUMERIC_FIELDS = [
@@ -43,11 +88,21 @@ const NUMERIC_FIELDS = [
   "standoffDiameter",
   "standoffHoleDiameter",
   "standoffSpacingX",
-  "standoffSpacingY",
-  "ventCount",
-  "ventWidth",
-  "ventSpacing"
+  "standoffSpacingY"
 ];
+
+for (const face of FACE_KEYS) {
+  NUMERIC_FIELDS.push(
+    `vent${face}Count`,
+    `vent${face}Width`,
+    `vent${face}Spacing`,
+    `wire${face}RoundDiameter`,
+    `wire${face}RectWidth`,
+    `wire${face}RectHeight`,
+    `wire${face}OffsetH`,
+    `wire${face}OffsetV`
+  );
+}
 
 export function readParamsFromForm(form) {
   const data = new FormData(form);
@@ -60,19 +115,20 @@ export function readParamsFromForm(form) {
 
   next.countersink = data.get("countersink") === "on";
   next.enableCenteredStandoffs = data.get("enableCenteredStandoffs") === "on";
-  next.enableVents = data.get("enableVents") === "on";
-  next.ventFront = data.get("ventFront") === "on";
-  next.ventBack = data.get("ventBack") === "on";
-  next.ventLeft = data.get("ventLeft") === "on";
-  next.ventRight = data.get("ventRight") === "on";
-  if (next.enableVents && !next.ventFront && !next.ventBack && !next.ventLeft && !next.ventRight) {
-    next.ventFront = true;
-    const ventFrontEl = form.elements.namedItem("ventFront");
-    if (ventFrontEl && "checked" in ventFrontEl) {
-      ventFrontEl.checked = true;
-    }
+
+  for (const face of FACE_KEYS) {
+    next[`faceEdit${face}`] = data.get(`faceEdit${face}`) === "on";
+    next[`vent${face}Enabled`] = data.get(`vent${face}Enabled`) === "on";
+    next[`wire${face}`] = data.get(`wire${face}`) === "on";
+
+    const profileKey = `wire${face}Profile`;
+    const profileRaw = String(data.get(profileKey) || "");
+    next[profileKey] = (profileRaw === "round" || profileRaw === "rect")
+      ? profileRaw
+      : DEFAULT_PARAMS[profileKey];
+
+    next[`vent${face}Count`] = Math.round(next[`vent${face}Count`]);
   }
-  next.ventCount = Math.round(next.ventCount);
 
   return next;
 }
