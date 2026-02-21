@@ -38,6 +38,8 @@ node scripts/bump-cache-version.mjs
 ```bash
 node scripts/bump-cache-version.mjs --set 10
 ```
+- Mandatory before any push:
+  - Always run `node scripts/bump-cache-version.mjs` immediately before committing/pushing changes so shipped assets never use stale cache tokens.
 
 ## Validation checklist before finishing
 1. JS syntax checks pass:

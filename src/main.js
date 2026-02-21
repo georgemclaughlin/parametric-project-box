@@ -1,15 +1,15 @@
-import { buildAssembly } from "./model/box.js?v=14";
-import { exportStl } from "./export.js?v=14";
-import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=14";
+import { buildAssembly } from "./model/box.js?v=15";
+import { exportStl } from "./export.js?v=15";
+import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=15";
 import {
   DEFAULT_PARAMS,
   readParamsFromForm,
   USB_C_PRESET_HEIGHT,
   USB_C_PRESET_WIDTH,
   writeParamsToForm
-} from "./state.js?v=14";
-import { validateParams } from "./validators.js?v=14";
-import { createViewer } from "./viewer.js?v=14";
+} from "./state.js?v=15";
+import { validateParams } from "./validators.js?v=15";
+import { createViewer } from "./viewer.js?v=15";
 
 const FACES = ["front", "back", "left", "right"];
 
