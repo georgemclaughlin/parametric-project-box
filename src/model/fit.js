@@ -89,6 +89,7 @@ export function deriveVentSlotCentersZForFace(params, faceRaw) {
 export function deriveWireCutoutSpecForFace(params, faceRaw) {
   const face = clampFace(faceRaw);
   const suffix = capFace(face);
+  const faceEditEnabled = Boolean(params[`faceEdit${suffix}`]);
   const profileRaw = String(params[`wire${suffix}Profile`] || "");
   const profile = (profileRaw === "round" || profileRaw === "rect") ? profileRaw : "rect";
 
@@ -115,7 +116,7 @@ export function deriveWireCutoutSpecForFace(params, faceRaw) {
 
   return {
     face,
-    enabled: Boolean(params[`wire${suffix}`]),
+    enabled: faceEditEnabled && Boolean(params[`wire${suffix}`]),
     profile,
     width,
     height,
@@ -139,7 +140,8 @@ export function deriveTrimmedVentSlotsByFace(params, minWeb = 1.2) {
 
   for (const face of FACES) {
     const suffix = capFace(face);
-    if (!params[`vent${suffix}Enabled`]) continue;
+    const faceEditEnabled = Boolean(params[`faceEdit${suffix}`]);
+    if (!faceEditEnabled || !params[`vent${suffix}Enabled`]) continue;
 
     const slotCenters = deriveVentSlotCentersZForFace(params, face);
     const slotCount = slotCenters.length;

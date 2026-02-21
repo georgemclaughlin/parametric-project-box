@@ -106,8 +106,14 @@ function syncFaceControls() {
     if (els.block) {
       els.block.hidden = !editVisible;
     }
+    if (els.ventEnabled && "disabled" in els.ventEnabled) {
+      els.ventEnabled.disabled = !editVisible;
+    }
+    if (els.wireEnabled && "disabled" in els.wireEnabled) {
+      els.wireEnabled.disabled = !editVisible;
+    }
 
-    const ventOn = Boolean(els.ventEnabled?.checked);
+    const ventOn = editVisible && Boolean(els.ventEnabled?.checked);
     if (els.ventParams) {
       els.ventParams.hidden = !ventOn;
     }
@@ -115,7 +121,7 @@ function syncFaceControls() {
     if (els.ventWidth && "disabled" in els.ventWidth) els.ventWidth.disabled = !ventOn;
     if (els.ventSpacing && "disabled" in els.ventSpacing) els.ventSpacing.disabled = !ventOn;
 
-    const wireOn = Boolean(els.wireEnabled?.checked);
+    const wireOn = editVisible && Boolean(els.wireEnabled?.checked);
     if (els.wireParams) {
       els.wireParams.hidden = !wireOn;
     }

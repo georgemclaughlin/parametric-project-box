@@ -139,6 +139,8 @@ export function validateParams(params) {
 
   for (const face of FACES) {
     const suffix = capFace(face);
+    const faceEditEnabled = Boolean(params[`faceEdit${suffix}`]);
+    if (!faceEditEnabled) continue;
     const ventEnabled = Boolean(params[`vent${suffix}Enabled`]);
     const wireEnabled = Boolean(params[`wire${suffix}`]);
 
@@ -211,7 +213,7 @@ export function validateParams(params) {
   const trimmedByFace = deriveTrimmedVentSlotsByFace(params, minWeb);
   const trimmedFaces = FACES.filter((face) => {
     const suffix = capFace(face);
-    if (!params[`vent${suffix}Enabled`] || !params[`wire${suffix}`]) return false;
+    if (!params[`faceEdit${suffix}`] || !params[`vent${suffix}Enabled`] || !params[`wire${suffix}`]) return false;
     const slots = deriveVentSlotCentersZForFace(params, face);
     return slots.length > 0 && (trimmedByFace[face] || []).length < slots.length;
   }).map((face) => capFace(face));

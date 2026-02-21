@@ -164,7 +164,7 @@ export function cutVents(bodyGeom, params) {
   const faces = ["front", "back", "left", "right"];
   for (const face of faces) {
     const suffix = face.charAt(0).toUpperCase() + face.slice(1);
-    if (!params[`vent${suffix}Enabled`]) continue;
+    if (!params[`faceEdit${suffix}`] || !params[`vent${suffix}Enabled`]) continue;
     const slotLength = (face === "front" || face === "back")
       ? Math.max(10, length - 20)
       : Math.max(10, width - 20);
