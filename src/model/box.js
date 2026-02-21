@@ -8,7 +8,7 @@ import {
   makeLidPlate,
   makePosts,
   makeRoundedShell
-} from "./features.js?v=15";
+} from "./features.js?v=16";
 
 const { union } = booleans;
 const { rotateX, translate } = transforms;

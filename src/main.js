@@ -1,15 +1,13 @@
-import { buildAssembly } from "./model/box.js?v=15";
-import { exportStl } from "./export.js?v=15";
-import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=15";
+import { buildAssembly } from "./model/box.js?v=16";
+import { exportStl } from "./export.js?v=16";
+import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=16";
 import {
   DEFAULT_PARAMS,
   readParamsFromForm,
-  USB_C_PRESET_HEIGHT,
-  USB_C_PRESET_WIDTH,
   writeParamsToForm
-} from "./state.js?v=15";
-import { validateParams } from "./validators.js?v=15";
-import { createViewer } from "./viewer.js?v=15";
+} from "./state.js?v=16";
+import { validateParams } from "./validators.js?v=16";
+import { createViewer } from "./viewer.js?v=16";
 
 const FACES = ["front", "back", "left", "right"];
 
@@ -55,8 +53,7 @@ function faceEls(face) {
     wireOffsetH: form.elements.namedItem(`wire${suffix}OffsetH`),
     wireOffsetV: form.elements.namedItem(`wire${suffix}OffsetV`),
     roundSection: document.querySelector(`.wire-round-geometry[data-face="${face}"]`),
-    rectSection: document.querySelector(`.wire-rect-geometry[data-face="${face}"]`),
-    presetBtn: document.querySelector(`.wire-usbc-preset[data-face="${face}"]`)
+    rectSection: document.querySelector(`.wire-rect-geometry[data-face="${face}"]`)
   };
 }
 
@@ -144,9 +141,6 @@ function syncFaceControls() {
     }
     if (els.wireRectHeight && "disabled" in els.wireRectHeight) {
       els.wireRectHeight.disabled = !wireOn || profile !== "rect";
-    }
-    if (els.presetBtn && "disabled" in els.presetBtn) {
-      els.presetBtn.disabled = !wireOn || profile !== "rect";
     }
   }
 }
@@ -307,20 +301,6 @@ deletePresetBtn.addEventListener("click", () => {
   setStatus(`Deleted preset: ${name}`);
   queueRegenerate();
 });
-
-for (const face of FACES) {
-  const els = perFace[face];
-  els.presetBtn?.addEventListener("click", () => {
-    if (els.wireRectWidth) {
-      els.wireRectWidth.value = String(USB_C_PRESET_WIDTH);
-      lastTouchedFieldName = els.wireRectWidth.name;
-    }
-    if (els.wireRectHeight) {
-      els.wireRectHeight.value = String(USB_C_PRESET_HEIGHT);
-    }
-    queueRegenerate();
-  });
-}
 
 exportBodyBtn.addEventListener("click", () => {
   if (!currentModel) {

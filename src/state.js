@@ -1,6 +1,3 @@
-export const USB_C_PRESET_WIDTH = 11;
-export const USB_C_PRESET_HEIGHT = 5.5;
-
 const FACE_KEYS = ["Front", "Back", "Left", "Right"];
 
 export const DEFAULT_PARAMS = {
