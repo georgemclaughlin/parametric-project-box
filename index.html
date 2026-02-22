@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Parametric Project Box</title>
-    <link rel="icon" href="./favicon.svg?v=16" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=16" />
+    <link rel="icon" href="./favicon.svg?v=29" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=29" />
   </head>
   <body>
     <header class="topbar">
@@ -26,8 +26,15 @@
             <label>Lid thickness <input type="number" name="lidThickness" step="0.1" min="1" max="8" value="2" /></label>
             <label>Corner radius <input type="number" name="cornerRadius" step="0.1" min="0" max="30" value="3" /></label>
             <div class="derived" id="inner-summary" aria-live="polite">
-              Internal cavity: <strong id="inner-dims">-</strong>
+              <div class="summary-label">Internal cavity:</div>
+              <strong id="inner-dims">-</strong>
+              <div class="summary-label">Between corner posts:</div>
+              <strong id="inner-dims-posts">-</strong>
             </div>
+            <label class="inline-check">
+              <input type="checkbox" name="showDimensions" />
+              Show inner cavity dimensions
+            </label>
           </section>
 
           <section>
@@ -241,6 +248,7 @@
               </div>
             </section>
           </details>
+
         </form>
 
         <section>
@@ -283,6 +291,6 @@
       </section>
     </main>
 
-    <script type="module" src="./src/main.js?v=16"></script>
+    <script type="module" src="./src/main.js?v=29"></script>
   </body>
 </html>

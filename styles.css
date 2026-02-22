@@ -208,6 +208,18 @@ label {
   font-size: 0.9rem;
 }
 
+#inner-summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 0.35rem;
+  row-gap: 0.22rem;
+  align-items: baseline;
+}
+
+#inner-summary .summary-label {
+  white-space: nowrap;
+}
+
 input,
 select,
 button {

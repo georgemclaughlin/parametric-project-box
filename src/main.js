@@ -1,13 +1,14 @@
-import { buildAssembly } from "./model/box.js?v=16";
-import { exportStl } from "./export.js?v=16";
-import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=16";
+import { buildAssembly } from "./model/box.js?v=29";
+import { exportStl } from "./export.js?v=29";
+import { deriveFit } from "./model/fit.js?v=29";
+import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=29";
 import {
   DEFAULT_PARAMS,
   readParamsFromForm,
   writeParamsToForm
-} from "./state.js?v=16";
-import { validateParams } from "./validators.js?v=16";
-import { createViewer } from "./viewer.js?v=16";
+} from "./state.js?v=29";
+import { validateParams } from "./validators.js?v=29";
+import { createViewer } from "./viewer.js?v=29";
 
 const FACES = ["front", "back", "left", "right"];
 
@@ -19,6 +20,7 @@ const form = document.querySelector("#params-form");
 const statusEl = document.querySelector("#status");
 const errorsEl = document.querySelector("#errors");
 const innerDimsEl = document.querySelector("#inner-dims");
+const innerPostDimsEl = document.querySelector("#inner-dims-posts");
 
 const presetNameEl = document.querySelector("#preset-name");
 const presetSelectEl = document.querySelector("#preset-select");
@@ -211,7 +213,7 @@ function regenerate() {
 
   try {
     const assembly = buildAssembly(nextParams);
-    const tri = viewer.update(assembly);
+    const tri = viewer.update({ ...assembly, params: nextParams });
 
     currentParams = nextParams;
     currentModel = assembly;
@@ -253,6 +255,19 @@ function updateInnerSummary(params) {
 
   const safe = (n) => (Number.isFinite(n) ? n.toFixed(1) : "-");
   innerDimsEl.textContent = `${safe(innerLength)} x ${safe(innerWidth)} x ${safe(innerHeight)} mm`;
+
+  const fit = deriveFit(params);
+  if (fit.postCenters && fit.postCenters.length === 4 && Number.isFinite(params.postDiameter)) {
+    const postX = Math.max(...fit.postCenters.map((c) => Math.abs(c.x)));
+    const postY = Math.max(...fit.postCenters.map((c) => Math.abs(c.y)));
+    const postRadius = params.postDiameter / 2;
+    const usableLength = Math.max(0, (postX - postRadius) - (-postX + postRadius));
+    const usableWidth = Math.max(0, (postY - postRadius) - (-postY + postRadius));
+    innerPostDimsEl.textContent = `${safe(usableLength)} x ${safe(usableWidth)} x ${safe(innerHeight)} mm`;
+    return;
+  }
+
+  innerPostDimsEl.textContent = "-";
 }
 
 function handleFormInteraction(event) {

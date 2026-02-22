@@ -10,7 +10,7 @@ import {
   deriveTrimmedVentSlotsByFace,
   deriveVentSlotCentersZForFace,
   deriveWireCutoutSpecForFace
-} from "./fit.js?v=16";
+} from "./fit.js?v=29";
 
 const { subtract, union } = booleans;
 const { roundedRectangle, cylinder, cylinderElliptic, cuboid } = primitives;
