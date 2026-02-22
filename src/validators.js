@@ -4,7 +4,7 @@ import {
   deriveTrimmedVentSlotsByFace,
   deriveVentSlotCentersZForFace,
   deriveWireCutoutSpecForFace
-} from "./model/fit.js?v=30";
+} from "./model/fit.js?v=32";
 
 const FACES = ["front", "back", "left", "right"];
 
