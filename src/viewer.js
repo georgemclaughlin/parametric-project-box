@@ -230,12 +230,13 @@ function makeDimensionOverlay(params) {
   if (fit.postCenters && fit.postCenters.length === 4) {
     const postX = Math.max(...fit.postCenters.map((c) => Math.abs(c.x)));
     const postY = Math.max(...fit.postCenters.map((c) => Math.abs(c.y)));
-    const xLeftCenter = -postX;
-    const xRightCenter = postX;
-    const yBottomCenter = -postY;
-    const yTopCenter = postY;
-    const postSpanX = Math.max(0, xRightCenter - xLeftCenter);
-    const postSpanY = Math.max(0, yTopCenter - yBottomCenter);
+    const postRadius = params.postDiameter / 2;
+    const xLeftInner = -postX + postRadius;
+    const xRightInner = postX - postRadius;
+    const yBottomInner = -postY + postRadius;
+    const yTopInner = postY - postRadius;
+    const postSpanX = Math.max(0, xRightInner - xLeftInner);
+    const postSpanY = Math.max(0, yTopInner - yBottomInner);
     const postZ = clamp(zBottom + innerHeight * 0.12, zBottom + 0.7, zBottom + 3.2);
     const postLabelScale = clamp(labelScale * 0.86, 1.2, 3.8);
     const sideOffset = clamp(params.postDiameter * 0.62, 1.2, 3.4);
@@ -246,21 +247,21 @@ function makeDimensionOverlay(params) {
     if (postSpanX > 0.01) {
       addGuideLine(
         group,
-        new THREE.Vector3(xLeftCenter, -postY, postZ),
-        new THREE.Vector3(xLeftCenter, postXGuideY, postZ),
+        new THREE.Vector3(xLeftInner, -postY, postZ),
+        new THREE.Vector3(xLeftInner, postXGuideY, postZ),
         postColor
       );
       addGuideLine(
         group,
-        new THREE.Vector3(xRightCenter, -postY, postZ),
-        new THREE.Vector3(xRightCenter, postXGuideY, postZ),
+        new THREE.Vector3(xRightInner, -postY, postZ),
+        new THREE.Vector3(xRightInner, postXGuideY, postZ),
         postColor
       );
 
       addDimension(
         group,
-        new THREE.Vector3(xLeftCenter, postXGuideY, postZ),
-        new THREE.Vector3(xRightCenter, postXGuideY, postZ),
+        new THREE.Vector3(xLeftInner, postXGuideY, postZ),
+        new THREE.Vector3(xRightInner, postXGuideY, postZ),
         `${postSpanX.toFixed(1)} mm`,
         postLabelScale,
         {
@@ -276,21 +277,21 @@ function makeDimensionOverlay(params) {
     if (postSpanY > 0.01) {
       addGuideLine(
         group,
-        new THREE.Vector3(-postX, yBottomCenter, postZ + 0.9),
-        new THREE.Vector3(postYGuideX, yBottomCenter, postZ + 0.9),
+        new THREE.Vector3(-postX, yBottomInner, postZ + 0.9),
+        new THREE.Vector3(postYGuideX, yBottomInner, postZ + 0.9),
         postColor
       );
       addGuideLine(
         group,
-        new THREE.Vector3(-postX, yTopCenter, postZ + 0.9),
-        new THREE.Vector3(postYGuideX, yTopCenter, postZ + 0.9),
+        new THREE.Vector3(-postX, yTopInner, postZ + 0.9),
+        new THREE.Vector3(postYGuideX, yTopInner, postZ + 0.9),
         postColor
       );
 
       addDimension(
         group,
-        new THREE.Vector3(postYGuideX, yBottomCenter, postZ + 0.9),
-        new THREE.Vector3(postYGuideX, yTopCenter, postZ + 0.9),
+        new THREE.Vector3(postYGuideX, yBottomInner, postZ + 0.9),
+        new THREE.Vector3(postYGuideX, yTopInner, postZ + 0.9),
         `${postSpanY.toFixed(1)} mm`,
         postLabelScale,
         {
