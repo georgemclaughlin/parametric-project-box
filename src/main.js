@@ -1,14 +1,14 @@
-import { buildAssembly } from "./model/box.js?v=29";
-import { exportStl } from "./export.js?v=29";
-import { deriveFit } from "./model/fit.js?v=29";
-import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=29";
+import { buildAssembly } from "./model/box.js?v=30";
+import { exportStl } from "./export.js?v=30";
+import { deriveFit } from "./model/fit.js?v=30";
+import { DEFAULT_PRESET, deletePreset, listPresets, loadPreset, savePreset } from "./presets.js?v=30";
 import {
   DEFAULT_PARAMS,
   readParamsFromForm,
   writeParamsToForm
-} from "./state.js?v=29";
-import { validateParams } from "./validators.js?v=29";
-import { createViewer } from "./viewer.js?v=29";
+} from "./state.js?v=30";
+import { validateParams } from "./validators.js?v=30";
+import { createViewer } from "./viewer.js?v=30";
 
 const FACES = ["front", "back", "left", "right"];
 

@@ -10,6 +10,7 @@ export const DEFAULT_PARAMS = {
   cornerRadius: 3,
   lipHeight: 3,
   fitTolerance: 0.25,
+  showDimensions: false,
   postDiameter: 8,
   screwHoleDiameter: 2.6,
   countersink: false,
@@ -111,6 +112,7 @@ export function readParamsFromForm(form) {
   }
 
   next.countersink = data.get("countersink") === "on";
+  next.showDimensions = data.get("showDimensions") === "on";
   next.enableCenteredStandoffs = data.get("enableCenteredStandoffs") === "on";
 
   for (const face of FACE_KEYS) {
